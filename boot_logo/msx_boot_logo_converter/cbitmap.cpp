@@ -36,6 +36,45 @@ typedef struct tagBITMAPINFOHEADER {
 const uint32_t BI_RGB = 0;
 
 // --------------------------------------------------------------------
+void cbitmap::alloc( int width, int height ){
+	this->width = width;
+	this->height = height;
+	this->byte_width = ( this->width * 3 + 3 ) & ~3;
+
+	this->image.resize( this->byte_width * this->height );
+}
+
+// --------------------------------------------------------------------
+void cbitmap::save( std::string s_file_name ){
+	BITMAPFILEHEADER fh;
+	BITMAPINFOHEADER ih;
+
+	memset( &fh, 0, sizeof( fh ) );
+	fh.bfType0 = 'B';
+	fh.bfType1 = 'M';
+	fh.bfSize = sizeof( BITMAPFILEHEADER ) + sizeof( BITMAPINFOHEADER ) + (uint32_t)this->image.size();
+	fh.bfOffBits = sizeof( BITMAPFILEHEADER ) + sizeof( BITMAPINFOHEADER );
+
+	memset( &ih, 0, sizeof( ih ) );
+	ih.biSize = sizeof( ih );
+	ih.biBitCount = 24;
+	ih.biCompression = BI_RGB;
+	ih.biWidth = this->width;
+	ih.biHeight = this->height;
+	ih.biSizeImage = (uint32_t)(this->image.size());
+
+	std::ofstream f( s_file_name, std::ios_base::binary );
+	if( !f ){
+		throw ("Cannot create " + s_file_name + ".").c_str();
+	}
+
+	f.write( (char *)&fh, sizeof( fh ) );
+	f.write( (char *)&ih, sizeof( ih ) );
+	f.write( (char *)(this->image.data()), this->image.size() );
+	f.close();
+}
+
+// --------------------------------------------------------------------
 void cbitmap::load( std::string s_file_name ){
 	std::ifstream file( s_file_name, std::ios::binary );
 
@@ -59,11 +98,7 @@ void cbitmap::load( std::string s_file_name ){
 	}
 	file.seekg( fi.bfOffBits, std::ios_base::beg );
 
-	this->width = ih.biWidth;
-	this->height = ih.biHeight;
-	this->byte_width = ( this->width * 3 + 3 ) & ~3;
-
-	this->image.resize( this->byte_width * this->height );
+	this->alloc( ih.biWidth, ih.biHeight );
 	file.read( (char *)( this->image.data() ), this->image.size() );
 	file.close();
 
@@ -78,7 +113,21 @@ void cbitmap::get_pixel( int x, int y, unsigned char &r, unsigned char &g, unsig
 	}
 
 	index = x * 3 + (this->height - y - 1) * this->byte_width;
-	b = this->image[ index + 0 ];
-	g = this->image[ index + 1 ];
-	r = this->image[ index + 2 ];
+	b = this->image[ (size_t)index + 0 ];
+	g = this->image[ (size_t)index + 1 ];
+	r = this->image[ (size_t)index + 2 ];
+}
+
+// --------------------------------------------------------------------
+void cbitmap::set_pixel( int x, int y, unsigned char r, unsigned char g, unsigned char b ){
+	int index;
+
+	if( x < 0 || y < 0 || x >= this->width || y >= this->height ){
+		return;
+	}
+
+	index = x * 3 + ( this->height - y - 1 ) * this->byte_width;
+	this->image[ (size_t)index + 0 ] = b;
+	this->image[ (size_t)index + 1 ] = g;
+	this->image[ (size_t)index + 2 ] = r;
 }

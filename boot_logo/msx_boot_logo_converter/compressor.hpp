@@ -10,6 +10,7 @@
 #include <vector>
 #include "cbitmap.hpp"
 
+// --------------------------------------------------------------------
 class ccompressor {
 private:
 	std::vector<unsigned char> image;
@@ -43,7 +44,7 @@ public:
 	// --------------------------------------------------------------------
 	//	êLí£
 	// --------------------------------------------------------------------
-	void decompress( std::vector<unsigned char> &decode );
+	void decompress( cbitmap &decode );
 };
 
 #endif

@@ -43,8 +43,9 @@ int main( int argc, char *argv[] ){
 	try{
 		compress.save( argv[ 2 ] );
 
-		std::vector< unsigned char > decode;
+		cbitmap decode;
 		compress.decompress( decode );
+		decode.save( std::string(argv[ 2 ]) + ".bmp" );
 	}
 	catch( const char *p_error ){
 		std::cerr << p_error;

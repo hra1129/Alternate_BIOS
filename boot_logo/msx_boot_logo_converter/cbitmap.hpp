@@ -10,6 +10,7 @@
 #include <vector>
 #include <string>
 
+// --------------------------------------------------------------------
 class cbitmap {
 private:
 	int byte_width;
@@ -35,6 +36,9 @@ public:
 	void get_pixel( int x, int y, unsigned char &r, unsigned char &g, unsigned char &b ) const;
 
 	// --------------------------------------------------------------------
+	void set_pixel( int x, int y, unsigned char r, unsigned char g, unsigned char b );
+
+	// --------------------------------------------------------------------
 	//	プロパティ取得
 	// --------------------------------------------------------------------
 	int get_width( void ) const{
@@ -45,6 +49,16 @@ public:
 	int get_height( void ) const{
 		return this->height;
 	}
+
+	// --------------------------------------------------------------------
+	//	セーブ
+	// --------------------------------------------------------------------
+	void alloc( int width, int height );
+
+	// --------------------------------------------------------------------
+	//	セーブ
+	// --------------------------------------------------------------------
+	void save( std::string s_file_name );
 };
 
 #endif
