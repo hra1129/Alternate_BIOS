@@ -1,0 +1,339 @@
+Z80 Macro Assembler ZMA v1.0.15
+=====================================================
+Programmed by t.hara
+
+<< code >>
+[	ORG 0X100]
+	code address: 0x000100
+
+[	LD HL , ALTBIOS_BOOT_LOGO_START] Z80:11cyc, R800:3cyc
+000100: 21 4e 01
+
+[	LD DE , 0X7900] Z80:11cyc, R800:3cyc
+000103: 11 00 79
+
+[	LD BC , ALTBIOS_BOOT_LOGO_END - ALTBIOS_BOOT_LOGO_START] Z80:11cyc, R800:3cyc
+000106: 01 00 07
+
+[	LDIR] Z80:23cyc(BC!=0), 18cyc(BC=0), R800:?cyc(BC!=0), 7cyc(BC=0)
+000109: ed b0
+
+[	LD A , [ MAIN_ROM_SLOT ]] Z80:14cyc, R800:6cyc
+00010b: 3a c1 fc
+
+[	LD HL , VERSION_ID] Z80:11cyc, R800:3cyc
+00010e: 21 2d 00
+
+[	CALL RDSLT] Z80:18cyc, R800:5cyc
+000111: cd 0c 00
+
+[	CP A , 3] Z80:8cyc, R800:2cyc
+000114: fe 03
+
+[	JR C , SKIP_FOR_MSX2_2P] Z80:13cyc(cond=true), 8cyc(cond=false), R800:3cyc(cond=true), 2cyc(cond=false)
+000116: 38 30
+
+[	LD IX , GETCPU] Z80:16cyc, R800:4cyc
+000118: dd 21 83 01
+
+[	LD IY , [ MAIN_ROM_SLOT - 1 ]] Z80:22cyc, R800:8cyc
+00011c: fd 2a c0 fc
+
+[	CALL CALSLT] Z80:18cyc, R800:5cyc
+000120: cd 1c 00
+
+[	LD [ _CHGCPU + 1 ] , A] Z80:14cyc, R800:6cyc
+000123: 32 3f 01
+
+[	LD IX , CHGCPU] Z80:16cyc, R800:4cyc
+000126: dd 21 80 01
+
+[	LD IY , [ MAIN_ROM_SLOT - 1 ]] Z80:22cyc, R800:8cyc
+00012a: fd 2a c0 fc
+
+[	LD A , 0X80] Z80:8cyc, R800:2cyc
+00012e: 3e 80
+
+[	CALL CALSLT] Z80:18cyc, R800:5cyc
+000130: cd 1c 00
+
+[	CALL 0X7900] Z80:18cyc, R800:5cyc
+000133: cd 00 79
+
+[	LD IX , CHGCPU] Z80:16cyc, R800:4cyc
+000136: dd 21 80 01
+
+[	LD IY , [ MAIN_ROM_SLOT - 1 ]] Z80:22cyc, R800:8cyc
+00013a: fd 2a c0 fc
+
+[_CHGCPU :]
+	label address: 0x00013e
+
+[	LD A , 3] Z80:8cyc, R800:2cyc
+00013e: 3e 03
+
+[	OR A , 0X80] Z80:8cyc, R800:2cyc
+000140: f6 80
+
+[	CALL CALSLT] Z80:18cyc, R800:5cyc
+000142: cd 1c 00
+
+[	JP EXIT_PROGRAM] Z80:11cyc, R800:5cyc
+000145: c3 4b 01
+
+[SKIP_FOR_MSX2_2P ::]
+	global label address: 0x000148
+
+[	CALL 0X7900] Z80:18cyc, R800:5cyc
+000148: cd 00 79
+
+[EXIT_PROGRAM ::]
+	global label address: 0x00014b
+
+[	JP EXIT_PROGRAM] Z80:11cyc, R800:5cyc
+00014b: c3 4b 01
+
+[ALTBIOS_BOOT_LOGO_START ::]
+	global label address: 0x00014e
+
+[	BINARY_LINK "altbios_boot_logo.bin"]
+00014e: f3 21 13 79 7e 23 b7 28
+000156: 3d 5f 7e 23 d3 99 7b d3
+00015e: 99 18 f1 81 23 80 08 88
+000166: 28 89 00 82 3f 85 ef 8b
+00016e: 00 86 0f 87 55 8f 02 90
+000176: 00 99 03 9a 00 9b 07 a4
+00017e: 00 a5 00 a6 00 a7 00 a8
+000186: 00 a9 02 aa 00 ab 02 ac
+00018e: 55 ad 00 ae c0 00 db 99
+000196: e6 01 20 fa 3e 0d d3 b4
+00019e: db b5 e6 0c f6 02 d3 b5
+0001a6: 3e 0b d3 b4 db b5 e6 03
+0001ae: 87 87 4f 06 00 21 3f 7b
+0001b6: 01 9a 04 7e 23 ed 79 10
+0001be: fa 21 44 04 ed 69 ed 61
+0001c6: 21 77 07 ed 69 ed 61 21
+0001ce: 00 74 01 00 02 3e 05 cd
+0001d6: 14 7b 21 00 78 01 30 00
+0001de: 3e ff cd 14 7b 21 30 78
+0001e6: 01 10 00 3e f0 cd 14 7b
+0001ee: 21 00 76 cd 27 7b 21 4f
+0001f6: 7b 01 98 28 ed b3 11 03
+0001fe: 99 cd 0b 7b 11 3f 82 cd
+000206: 0b 7b 11 a0 ae cd 0b 7b
+00020e: 11 24 91 cd 0b 7b 21 c7
+000216: 7b 01 9b 0b ed b3 11 ac
+00021e: 91 cd 0b 7b 21 d2 7b 1e
+000226: 00 0e 9b 7e 23 07 30 38
+00022e: 16 00 07 cb 12 d5 0f 0f
+000236: e6 3f 57 20 02 3e 3f 47
+00023e: cd 36 7a ed 59 10 f9 7a
+000246: b7 20 0a 56 23 42 04 05
+00024e: 20 ee 05 18 eb f1 b7 28
+000256: 09 f5 cd 36 7a f1 3e 02
+00025e: ed 79 7b ee 03 5f 18 c3
+000266: 06 03 57 d5 1e 00 cb 12
+00026e: cb 13 cb 12 cb 13 cd 36
+000276: 7a ed 59 10 ef cb 02 7a
+00027e: 82 82 d1 5f 18 a5 db 99
+000286: 0f 30 06 e6 40 ca 36 7a
+00028e: c9 d1 d1 21 ff 00 22 5e
+000296: f5 21 5e f5 11 60 f5 01
+00029e: 9e 00 ed b0 db 99 e6 40
+0002a6: 28 fa db 99 e6 40 20 fa
+0002ae: 11 00 8f cd 0b 7b 11 63
+0002b6: 81 cd 0b 7b 01 9b 15 c5
+0002be: cd cc 7a dd 21 5e f5 fd
+0002c6: 21 77 7b 06 28 16 00 dd
+0002ce: 6e 00 dd 66 01 fd 5e 00
+0002d6: b7 ed 52 30 02 6a 62 dd
+0002de: 75 00 dd 74 01 dd 23 dd
+0002e6: 23 fd 23 dd 6e 00 dd 66
+0002ee: 01 fd 5e 00 19 7c fe 02
+0002f6: 38 03 21 00 02 dd 75 00
+0002fe: dd 74 01 dd 23 dd 23 fd
+000306: 23 10 c4 c1 10 b1 11 00
+00030e: 99 cd 0b 7b 11 1f 82 cd
+000316: 0b 7b fb c9 06 50 21 5e
+00031e: f5 5e 23 56 23 1b 7b cb
+000326: 3a 1f 0f 0f 3c e6 3f 57
+00032e: 3e 07 93 e6 03 5f 3e 1a
+000336: d3 99 3e 91 d3 99 db 99
+00033e: db 99 e6 20 ca f0 7a ed
+000346: 51 ed 59 10 d4 3e 1a d3
+00034e: 99 3e 91 d3 99 af ed 79
+000356: ed 79 c9 f5 7b d3 99 7a
+00035e: d3 99 f1 c9 5f cd 27 7b
+000366: 79 b7 7b 28 01 04 d3 98
+00036e: 0d 20 fb 05 20 f8 c9 7c
+000376: e6 3f f6 40 08 7c 07 07
+00037e: e6 03 d3 99 3e 8e d3 99
+000386: 7d d3 99 08 d3 99 c9 00
+00038e: 00 07 00 27 02 20 04 56
+000396: 00 72 02 70 00 70 05 1f
+00039e: e8 00 00 1f e8 00 00 3f
+0003a6: e8 00 00 3f e8 00 00 4f
+0003ae: e8 00 00 4f e8 00 00 1f
+0003b6: 00 04 00 3f 00 04 00 4f
+0003be: 00 04 00 d8 00 00 00 13
+0003c6: 0d 15 12 14 0e 10 17 13
+0003ce: 11 15 11 0e 0d 11 15 0c
+0003d6: 11 13 11 15 15 12 0c 0f
+0003de: 10 0e 0e 15 0d 0f 11 11
+0003e6: 11 17 14 0d 0d 0c 0c 0d
+0003ee: 10 15 12 17 10 0e 17 11
+0003f6: 0c 12 13 17 0e 16 14 14
+0003fe: 0e 14 15 0e 0e 13 0f 11
+000406: 13 13 0f 17 15 0d 15 0f
+00040e: 17 0c 0d 16 0c 11 0e 2d
+000416: 00 20 00 a6 01 50 00 00
+00041e: 00 b0 c0 00 00 00 00 00
+000426: 00 00 00 00 00 00 00 00
+00042e: 00 e6 dc 40 d9 9d ef c0
+000436: 29 ea 5f e6 c0 20 5f db
+00043e: db dd e9 5f c0 2c a9 aa
+000446: c0 21 de da 9f e5 c0 35
+00044e: e4 5f e6 40 c0 1f 5f 9d
+000456: da df e1 c0 39 a3 aa c0
+00045e: 23 e0 d8 e1 dd c0 3e de
+000466: 5f e6 80 25 e2 d7 e1 da
+00046e: c0 42 dc aa c0 25 e2 40
+000476: d3 a3 d8 80 47 d9 e8 c0
+00047e: 26 5f e1 d5 e3 d6 c0 48
+000486: d6 e9 c0 27 e4 d4 a5 d4
+00048e: 80 4d d3 e8 c0 28 5f a3
+000496: d4 e5 d2 c0 4e 40 cd e9
+00049e: c0 29 e6 d2 e7 d0 80 52
+0004a6: cd e9 40 c0 26 e8 d1 e7
+0004ae: cf c0 53 40 c8 e8 c0 2b
+0004b6: e8 40 cd a9 ce c0 57 c6
+0004be: e9 c0 2b ea ce ea cc c0
+0004c6: 59 c4 e8 c0 2d ab ce ab
+0004ce: 8c c0 5c 5f e7 c0 2d 5f
+0004d6: e9 cc ec ca c0 85 c0 2f
+0004de: ed cb ed 89 e6 c0 0c 5f
+0004e6: c0 0f c0 2f ee 40 c7 ee
+0004ee: 89 e3 c0 12 c0 0d c0 31
+0004f6: ef c9 af 89 e1 c0 14 5f
+0004fe: c0 09 c0 31 f0 40 c5 f0
+000506: 88 e0 c0 18 c0 07 c0 33
+00050e: f1 87 f2 87 e1 c0 17 5f
+000516: c0 03 c0 33 b3 c6 f2 40
+00051e: 84 e3 c0 18 c0 02 c0 34
+000526: f3 c5 f3 86 e6 c0 16 fe
+00052e: c0 35 f4 40 17 7f f0 c6
+000536: c0 07 f6 fb c0 36 f5 01
+00053e: 5f b3 87 c0 0c 40 ef f8
+000546: c0 37 f7 17 7f f2 c6 80
+00054e: 10 f0 f5 c0 38 f7 1f 7f
+000556: f3 c6 c0 12 ed f2 c0 39
+00055e: c0 33 40 c4 c0 14 ec ef
+000566: c0 3a c0 34 c7 c0 16 ea
+00056e: ec c0 3b c0 35 c8 c0 17
+000576: ea e9 c0 3c 80 36 c9 c0
+00057e: 17 e8 ea c0 3b c0 37 ca
+000586: c0 17 e4 ed c0 3a c0 38
+00058e: ca c0 17 e2 f0 c0 37 a0
+000596: 1f 7f f3 7f db 40 c9 c0
+00059e: 16 df f3 c0 36 df 17 7f
+0005a6: f2 57 dd ce c0 14 dd f6
+0005ae: c0 33 e0 17 7f b2 05 7f
+0005b6: db d1 c0 12 da f9 c0 32
+0005be: df 01 5f f2 01 5f 9c d4
+0005c6: c0 10 d8 fc c0 2f a0 85
+0005ce: b4 85 de d7 5f 80 0a d7
+0005d6: fe c0 2e df c5 f2 85 df
+0005de: db c0 08 d4 c0 03 c0 2b
+0005e6: a0 87 f1 c6 de 40 f9 e6
+0005ee: d2 5f c0 03 c0 2a df c7
+0005f6: f0 c6 5f dc ff e2 d1 c0
+0005fe: 09 c0 27 a0 c8 b0 c8 de
+000606: c0 02 e0 cf 5f c0 09 80
+00060e: 26 e0 c9 ee c9 de 80 02
+000616: e0 ce c0 0f c0 23 a0 8b
+00061e: ed 8b de c0 01 e0 cc 5f
+000626: e6 7f e4 c0 22 df cb ec
+00062e: cb de fd e2 cb e8 41 5f
+000636: 7f e2 c0 1f a0 8d eb 8d
+00063e: de 40 f6 e6 c9 5f e7 c4
+000646: e7 c0 1e df cd ea cd c0
+00064e: 3f c9 e7 40 c6 e7 c0 1b
+000656: a0 8f aa ce 80 3f c7 5f
+00065e: e6 40 c8 e7 80 1a e0 cf
+000666: e8 cf c0 3d 87 e8 40 cc
+00066e: e7 c0 17 df 91 e7 91 c0
+000676: 3c c5 5f e6 40 ce 5f e4
+00067e: 40 c0 13 9f d2 e5 d2 c0
+000686: 3a 86 e8 40 d2 e7 c0 13
+00068e: df 93 e5 93 c0 39 c4 5f
+000696: e6 d7 5f e4 40 c0 0f 9f
+00069e: d4 a4 d4 c0 37 85 e8 40
+0006a6: d8 e7 c0 0f df 95 e3 d4
+0006ae: c0 36 c4 5f e4 de 5f e4
+0006b6: 40 80 0b a0 d6 e1 d6 c0
+0006be: 33 c4 e8 40 9f e7 c0 0b
+0006c6: df 97 e1 97 c0 32 c4 e7
+0006ce: e4 5f e4 40 c0 07 9f d8
+0006d6: df d8 c0 2f c4 e8 40 a5
+0006de: e7 40 c0 04 df 99 df 99
+0006e6: c0 2c c6 e7 ea 5f e4 40
+0006ee: c0 03 9f da 9e da c0 28
+0006f6: c7 e8 40 eb e6 40 ff df
+0006fe: 9b dd da 80 25 ca e7 f0
+000706: 5f e4 40 be a0 dc db dc
+00070e: 80 21 cb e8 40 f1 e7 fd
+000716: df 9d db 9d c0 1b 8f e8
+00071e: f6 5f e5 80 00 00 00 00
+000726: 00 00 00 00 00 00 00 00
+00072e: 00 00 bf ff ff ff ff ff
+000736: ff ff ff ff ff ff ff ff
+00073e: ff ff ff ff ff ff ff ff
+000746: ff ff ff ff ff ff ff ff
+00074e: ff ff ff ff ff ff ff ff
+000756: ff ff ff ff ff ff ff ff
+00075e: ff ff ff ff ff ff ff ff
+000766: ff ff ff ff ff ff ff ff
+00076e: ff ff ff ff ff ff ff ff
+000776: ff ff ff ff ff ff ff ff
+00077e: ff ff ff ff ff ff ff ff
+000786: ff ff ff ff ff ff ff ff
+00078e: ff ff ff ff ff ff ff ff
+000796: ff ff ff ff ff ff ff ff
+00079e: ff ff ff ff ff ff ff ff
+0007a6: ff ff ff ff ff ff ff ff
+0007ae: ff ff ff ff ff ff ff ff
+0007b6: ff ff ff ff ff ff ff ff
+0007be: ff ff ff ff ff ff ff ff
+0007c6: ff ff ff ff ff ff ff ff
+0007ce: ff ff ff ff ff ff ff ff
+0007d6: ff ff ff ff ff ff ff ff
+0007de: ff ff ff ff ff ff ff ff
+0007e6: ff ff ff ff ff ff ff ff
+0007ee: ff ff ff ff ff ff ff ff
+0007f6: ff ff ff ff ff ff ff ff
+0007fe: ff ff ff ff ff ff ff ff
+000806: ff ff ff ff ff ff ff ff
+00080e: ff ff ff ff ff ff ff ff
+000816: ff ff ff ff ff ff ff ff
+00081e: ff ff ff ff ff ff ff ff
+000826: ff ff ff ff ff ff ff ff
+00082e: ff ff ff ff ff ff ff ff
+000836: ff ff ff ff ff ff ff ff
+00083e: ff ff ff ff ff ff ff ff
+000846: ff ff ff ff ff ff ff ff
+
+[ALTBIOS_BOOT_LOGO_END ::]
+	global label address: 0x00084e
+
+<< label >>
+ALTBIOS_BOOT_LOGO_END 2126 ( 0x84e )
+ALTBIOS_BOOT_LOGO_START 334 ( 0x14e )
+CALSLT 28 ( 0x1c )
+CHGCPU 384 ( 0x180 )
+EXIT_PROGRAM 331 ( 0x14b )
+GETCPU 387 ( 0x183 )
+MAIN_ROM_SLOT 64705 ( 0xfcc1 )
+RDSLT 12 ( 0xc )
+SKIP_FOR_MSX2_2P 328 ( 0x148 )
+VERSION_ID 45 ( 0x2d )
+_CHGCPU 318 ( 0x13e )
