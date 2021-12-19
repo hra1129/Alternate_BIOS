@@ -319,14 +319,7 @@ _update_scroll_loop:
 				ld			l, d
 				ld			h, d
 _not_borrow1:
-				ld			[ix + 0], l
-				ld			[ix + 1], h
 				call		calc_reg_value
-				inc			ix
-				inc			ix
-				inc			ix
-				inc			ix
-				inc			iy
 
 				; 値が増えていくライン
 				ld			l, [ix + 0]
@@ -338,14 +331,7 @@ _not_borrow1:
 				jr			c, _not_carry1
 				ld			hl, 512
 _not_carry1:
-				ld			[ix + 0], l
-				ld			[ix + 1], h
 				call		calc_reg_value
-				inc			ix
-				inc			ix
-				inc			ix
-				inc			ix
-				inc			iy
 				djnz		_update_scroll_loop
 
 				pop			bc
@@ -372,22 +358,30 @@ _not_carry1:
 ; -----------------------------------------------------------------------------
 				scope		calc_reg_value
 calc_reg_value::
+				ld			[ix + 0], l
+				ld			[ix + 1], h
 				; R#26 の値
-				dec			hl
-				ld			a, l
-				srl			h
-				rra
-				rrca
-				rrca
+				dec			hl								; HL = [???????][S8][S7][S6][S5][S4][S3][S2][S1][S0]
+				ld			a, l							; A  = [S7][S6][S5][S4][S3][S2][S1][S0]
+				rrc			h								; Cy = [S8]
+				rra											; A  = [S8][S7][S6][S5][S4][S3][S2][S1]
+				rra											; A  = [? ][S8][S7][S6][S5][S4][S3][S2]
+				rra											; A  = [? ][? ][S8][S7][S6][S5][S4][S3]
 				inc			a
-				and			a, 0x3f
+				and			a, 0x3f							; A  = [0 ][0 ][S8][S7][S6][S5][S4][S3]
 				ld			[ix + 2], a
 
 				; R#27 の値
 				ld			a, 7
-				sub			a, l
+				sub			a, l							; A  = 7 - [?????][S2][S1][S0]
 				and			a, 0x07
 				ld			[ix + 3], a
+
+				inc			ix
+				inc			ix
+				inc			ix
+				inc			ix
+				inc			iy
 				ret
 				endscope
 
@@ -614,6 +608,6 @@ end_of_program::
 				if end_of_program > 0x8000
 					error "LOGO DATA IS TOO BIG!! (Over " + (end_of_program - 0x8000) + "Bytes)"
 				else
-					message	"FILE SIZE IS OK!"
+					message	"FILE SIZE IS OK! (Remain " + (0x8000 - end_of_program) + "Bytes)"
 					space	0x8000 - end_of_program, 0xFF
 				endif
