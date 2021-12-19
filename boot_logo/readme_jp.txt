@@ -22,6 +22,7 @@
 
 	altbios_boot_logo.bin .... 7900h-7FFFh の ROMイメージ
 	BOOTLOGO.COM ............. MSX-DOS上で動作する起動ロゴテストプログラム(※MSX2+/turboR用)
+	A1GTOPT.ROM .............. FS-A1GT Slot#0-3 Page1 に相当するROMイメージ
 
 ===============================================================================
 19th/Dec./2021  HRA!

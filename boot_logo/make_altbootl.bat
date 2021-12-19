@@ -13,7 +13,7 @@ if %errorlevel% geq 1 (
 )
 move logo.bin source\logo.bin
 
-echo "Generate ROM code [bootlogo.rom]"
+echo "Generate ROM code [altbios_boot_logo.bin]"
 pushd source
 ..\..\tool\zma ./altbios_boot_logo.asm altbios_boot_logo.bin
 if %errorlevel% geq 1 (
@@ -30,8 +30,17 @@ if %errorlevel% geq 1 (
 	goto end_of_batch
 )
 
+echo "Makeup A1GTOPT.ROM"
+..\..\tool\zma ./altbios_boot_logo_a1gt.asm A1GTOPT.ROM
+if %errorlevel% geq 1 (
+	popd
+	echo "Failed."
+	goto end_of_batch
+)
+
 move altbios_boot_logo.bin ..
 move BOOTLOGO.COM ..
+move A1GTOPT.ROM ..
 popd
 
 echo "************************************"

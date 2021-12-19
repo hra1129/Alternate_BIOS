@@ -22,6 +22,7 @@ Usage
 
 	altbios_boot_logo.bin .... ROM image of 7900h-7FFFh
 	BOOTLOGO.COM ............. Boot logo test program that runs on MSX-DOS (*for MSX2+/turboR)
+	A1GTOPT.ROM .............. Compatible ROM image for FS-A1GT Slot#0-3 Page1
 
 ===============================================================================
 19th/Dec./2021  HRA!
