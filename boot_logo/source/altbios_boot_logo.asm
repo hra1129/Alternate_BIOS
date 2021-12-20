@@ -221,7 +221,6 @@ _next_color:
 				; [0][C1][C2][C3][N]の場合
 _fixed_data:
 				ld			b, 3
-				ex			af, af'
 _fixed_data_loop:
 				xor			a, a
 				rl			d
