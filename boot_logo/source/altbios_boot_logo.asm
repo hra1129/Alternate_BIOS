@@ -174,14 +174,13 @@ _decompress_loop:
 				ld			e, a
 				ld			a, [hl]
 				inc			hl
-				rlca
+				add			a, a
 				ld			d, a
 				jr			nc, _fixed_data					; [0][C1][C2][C3][N]タイプなら fixed_data へ。
 
 				; [1]の場合
-				; D .... 灰色が付く場合 1, 付かない場合 0
-				rlca
-				and			a, 1
+				; Cy' .... 灰色が付く場合 1, 付かない場合 0
+				add			a, a
 				ex			af, af'							; GRAY情報を保存
 				ld			a, d
 
@@ -208,8 +207,7 @@ _run_length_loop:
 				jr			_run_length_loop
 _gray_process:
 				ex			af, af'
-				or			a, a
-				jr			z, _next_color					; 灰色が付かない場合は何もせずに戻る
+				jr			nc, _next_color					; 灰色が付かない場合は何もせずに戻る
 				call		wait_tansfer_ready
 				ld			a, 2							; 灰色
 				out			[c], a
