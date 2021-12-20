@@ -216,7 +216,7 @@ _gray_process:
 				out			[c], a
 _next_color:
 				ld			a, e
-				xor			a, 3
+				xor			a, 3							; Ÿ‚ÌF‚Í”½“]
 				jr			_decompress_loop
 
 				; [0][C1][C2][C3][N]‚Ìê‡
