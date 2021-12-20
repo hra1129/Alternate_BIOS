@@ -111,6 +111,7 @@ init_vdp_end:
 				ld			c, a
 				ld			b, 0
 				ld			hl, color_data
+				add			hl, bc
 				ld			bc, (4 << 8) | vdp_port2
 loop:
 				ld			a, [hl]
@@ -342,12 +343,11 @@ _not_carry1:
 				ld			de, ((0x80 | 2 ) << 8) | 0x1f	; R#2  = 1Fh : 表示ページ0
 				call		write_vdp_reg
 
-				ld			hl, 0x0000
-				ld			[work_area + 0], hl
-				ld			[work_area + 2], hl
+				xor			a, a
+				ld			[work_area], a
 				ld			hl, work_area
-				ld			de, work_area + 4
-				ld			bc, (80 - 1) * 4
+				ld			de, work_area + 1
+				ld			bc, 80 * 4 - 1
 				ldir
 				ei
 				ret
