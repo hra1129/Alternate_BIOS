@@ -289,7 +289,7 @@ _update_scroll_loop:
 				ld			l, [ix + 0]
 				ld			h, [ix + 1]
 				ld			e, [iy + 0]
-				or			a, a
+				;or			a, a				; Cy = 0
 				sbc			hl, de
 				jr			nc, _not_borrow1
 				ld			l, d
