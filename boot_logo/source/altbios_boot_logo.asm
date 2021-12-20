@@ -221,20 +221,19 @@ _next_color:
 				; [0][C1][C2][C3][N]の場合
 _fixed_data:
 				ld			b, 3
-				ex			af, af'
 _fixed_data_loop:
-				ld			e, 0
-				sla			d
-				rl			e
+				xor			a, a
 				rl			d
-				rl			e
+				rla
+				rl			d
+				rla
+				ld			e, a
 				call		wait_tansfer_ready
 				out			[c], e							; R#44 = C1
 				djnz		_fixed_data_loop
-				rlc			d								; D = [N] 0 または 1
+				rlc			d								; Cy = D = [N] 0 または 1
 				ld			a, d
-				add			a, d
-				add			a, d							; A = 0 または 3
+				adc			a, d							; A = 0 または 3
 				jr			_decompress_loop
 
 				endscope
