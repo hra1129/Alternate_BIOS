@@ -122,12 +122,12 @@ init_palette::
 				call		fill_vram
 
 				ld			h, 0x78				; sprite generator table
-				ld			bc, 0x30			; pattern#0 and pattern#1 (half)
+				ld			c, 0x30				; pattern#0 and pattern#1 (half)
 				ld			a, 0xFF
 				call		fill_vram
 
 				ld			l, 0x30				; sprite generator table
-				ld			bc, 0x10			; pattern#1 (half)
+				ld			c, 0x10				; pattern#1 (half)
 				ld			a, 0xF0
 				call		fill_vram
 
@@ -175,17 +175,16 @@ _decompress_loop:
 				ld			a, [hl]
 				inc			hl
 				rlca
+				ld			d, a
 				jr			nc, _fixed_data					; [0][C1][C2][C3][N]タイプなら fixed_data へ。
 
 				; [1]の場合
 				; D .... 灰色が付く場合 1, 付かない場合 0
 				rlca
-				ld			d, a
 				and			a, 1
 				ex			af, af'							; GRAY情報を保存
 				ld			a, d
 
-				rrca
 				rrca
 				and			a, 0b0011_1111					;  0, 1, 2, ... , 63
 				ld			d, a
@@ -222,7 +221,6 @@ _next_color:
 				; [0][C1][C2][C3][N]の場合
 _fixed_data:
 				ld			b, 3
-				ld			d, a
 				ex			af, af'
 _fixed_data_loop:
 				ld			e, 0
