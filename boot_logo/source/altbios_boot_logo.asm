@@ -42,19 +42,8 @@ work_area		:=			0xF975				; PLAY文のワークエリア 384byte
 				scope		init_vdp
 init_vdp::
 				di
-				ld			hl, vdp_init_data
-loop1:
-				ld			a, [hl]
-				inc			hl
-				or			a, a
-				jr			z, wait_vdp_command
-				ld			e, a
-				ld			a, [hl]
-				inc			hl
-				out			[vdp_port1], a
-				ld			a, e
-				out			[vdp_port1], a
-				jr			loop1
+
+				call		write_vdp_regs
 
 vdp_init_data::
 				db			0x80 |  1, 0x23				; R#1  = モードレジスタ SCREEN6, 画面非表示
@@ -83,18 +72,20 @@ vdp_init_data::
 				db			0x80 | 45, 0				; R#45 : ARG = 0
 				db			0x80 | 46, 0b11000000		; R#46 : CMR = HMMV
 				db			0x00
-
 wait_vdp_command:
 				in			a, [vdp_port1]
 				and			a, 1
 				jr			nz, wait_vdp_command
-init_vdp_end:
+
 				endscope
+
 
 ; -----------------------------------------------------------------------------
 ; Initialize VDP palette
 ; -----------------------------------------------------------------------------
 				scope		init_palette
+init_palette::
+
 				ld			a, 13				; read ModeRegister(R#13) of RTC
 				out			[rtc_address], a
 				in			a, [rtc_data]
@@ -108,21 +99,17 @@ init_vdp_end:
 				and			a, 0x03
 				add			a, a
 				add			a, a
-				ld			c, a
-				ld			b, 0
-				ld			hl, color_data
+
+				ld			h, 0xFF & (color_data1 >> 8)
+				add			a, 0xFF & color_data1
+				ld			l, a
+
 				ld			bc, (4 << 8) | vdp_port2
-loop:
-				ld			a, [hl]
-				inc			hl
-				out			[c], a
-				djnz		loop
-				ld			hl, 0x0444			; palette#2 : gray
-				out			[c], l
-				out			[c], h
-				ld			hl, 0x0777			; palette#3 : white
-				out			[c], l
-				out			[c], h
+				otir
+
+				ld			l, 0xFF & color_data2
+				ld			b, 4
+				otir
 				endscope
 
 ; -----------------------------------------------------------------------------
@@ -134,12 +121,12 @@ loop:
 				ld			a, 0x05				; palette#1, palette#1
 				call		fill_vram
 
-				ld			hl, 0x7800			; sprite generator table
+				ld			h, 0x78				; sprite generator table
 				ld			bc, 0x30			; pattern#0 and pattern#1 (half)
 				ld			a, 0xFF
 				call		fill_vram
 
-				ld			hl, 0x7830			; sprite generator table
+				ld			l, 0x30				; sprite generator table
 				ld			bc, 0x10			; pattern#1 (half)
 				ld			a, 0xF0
 				call		fill_vram
@@ -156,25 +143,24 @@ loop:
 ; -----------------------------------------------------------------------------
 				scope		decompress_logo_image
 decompress_logo_image::
-				ld			de, ((0x80 | 25) << 8) | 3		; MSK = 1, SP2 = 1
-				call		write_vdp_reg
-				ld			de, ((0x80 | 2 ) << 8) | 0x3F	; set page 1
-				call		write_vdp_reg
+				call		write_vdp_regs
 
-_run_lmcm_command:											; dummy execution
-				ld			de, ((0x80 | 46) << 8) | 0xA0
-				call		write_vdp_reg
-
+				db			0x80 | 25, 3		; MSK = 1, SP2 = 1
+				db			0x80 |  2, 0x3F		; set page 1
+_run_lmcm_command:								; dummy execution
+				db			0x80 | 46, 0xA0
 _run_lmmc_command:
-				ld			de, ((0x80 | 17) << 8) | 36		; R#17 = 36
-				call		write_vdp_reg
+				db			0x80 | 17, 36		; R#17 = 36
+				db			0x00
 
 				ld			hl, logo_draw_command
 				ld			bc, (logo_draw_command_size << 8) | vdp_port3
 				otir
 
-				ld			de, ((0x80 | 17) << 8) | (0x80 | 44)	; R#17 = 0x80 | 44 (非オートインクリメント)
-				call		write_vdp_reg
+				call		write_vdp_regs
+
+				db			0x80 | 17, 0x80 | 44	; R#17 = 0x80 | 44 (非オートインクリメント)
+				db			0x00
 
 				; RLEを展開する
 				; HL ... 圧縮データのアドレス
@@ -182,9 +168,10 @@ _run_lmmc_command:
 				; C .... VDP port#3
 				; E .... 現在の色: 0=黒, 3=白
 				ld			hl, logo_data
-				ld			e, 0
 				ld			c, vdp_port3
+				; _decompress_loop ループ開始時点で A = 0 (return value of write_vdp_regs)
 _decompress_loop:
+				ld			e, a
 				ld			a, [hl]
 				inc			hl
 				rlca
@@ -192,10 +179,12 @@ _decompress_loop:
 
 				; [1]の場合
 				; D .... 灰色が付く場合 1, 付かない場合 0
-				ld			d, 0
 				rlca
-				rl			d
-				push		de								; GRAY情報を保存
+				ld			d, a
+				and			a, 1
+				ex			af, af'							; GRAY情報を保存
+				ld			a, d
+
 				rrca
 				rrca
 				and			a, 0b0011_1111					;  0, 1, 2, ... , 63
@@ -215,33 +204,29 @@ _run_length_loop:
 				inc			hl
 				ld			b, d
 				inc			b
-				dec			b
-				jr			nz, _run_length_loop
+				djnz		_run_length_loop
 				dec			b
 				jr			_run_length_loop
 _gray_process:
-				pop			af
+				ex			af, af'
 				or			a, a
 				jr			z, _next_color					; 灰色が付かない場合は何もせずに戻る
-				push		af
 				call		wait_tansfer_ready
-				pop			af
 				ld			a, 2							; 灰色
 				out			[c], a
 _next_color:
 				ld			a, e
 				xor			a, 3
-				ld			e, a							; 次の色は反転
 				jr			_decompress_loop
 
 				; [0][C1][C2][C3][N]の場合
-_fixed_data:												; この時点で Cy=0
+_fixed_data:
 				ld			b, 3
 				ld			d, a
-				push		de								; dummy gray data
+				ex			af, af'
 _fixed_data_loop:
 				ld			e, 0
-				rl			d
+				sla			d
 				rl			e
 				rl			d
 				rl			e
@@ -252,21 +237,20 @@ _fixed_data_loop:
 				ld			a, d
 				add			a, d
 				add			a, d							; A = 0 または 3
-				pop			de
-				ld			e, a
 				jr			_decompress_loop
 
+				endscope
+
+				scope		wait_tansfer_ready
+loop:
+				and			a, 0x40
+				ret			nz
 wait_tansfer_ready::
 				in			a, [vdp_port1]
 				rrca
-				jr			nc, _lmmc_end
-				and			a, 0x40
-				jp			z, wait_tansfer_ready
-				ret
-
+				jr			c, loop
 _lmmc_end:
 				pop			de								; dump return address
-				pop			de								; dump gray data
 				endscope
 
 ; -----------------------------------------------------------------------------
@@ -292,11 +276,11 @@ _wait_vsync2:
 				and			a, 0x40
 				jr			nz, _wait_vsync2
 
-				ld			de, ((0x80 | 15) << 8) | 0			; R#15 = 0 (S#0)
-				call		write_vdp_reg
+				call		write_vdp_regs
 
-				ld			de, ((0x80 | 1 ) << 8) | 0x63		; R#1  = 63h : 画面表示ON
-				call		write_vdp_reg
+				db			0x80 | 15, 0		; R#15 = 0 (S#0)
+				db			0x80 |  1, 0x63		; R#1  = 63h : 画面表示ON
+				db			0x00
 
 				ld			bc, (21 << 8) | vdp_port3
 _main_loop:
@@ -337,17 +321,16 @@ _not_carry1:
 				pop			bc
 				djnz		_main_loop
 
-				ld			de, ((0x80 | 25) << 8) | 0		; R#25 = 0
-				call		write_vdp_reg
-				ld			de, ((0x80 | 2 ) << 8) | 0x1f	; R#2  = 1Fh : 表示ページ0
-				call		write_vdp_reg
+				call		write_vdp_regs
 
-				ld			hl, 0x0000
-				ld			[work_area + 0], hl
-				ld			[work_area + 2], hl
+				db			0x80 | 25, 0		; R#25 = 0
+				db			0x80 |  2, 0x1F		; R#2  = 1Fh : 表示ページ0
+				db			0x00
+
 				ld			hl, work_area
-				ld			de, work_area + 4
-				ld			bc, (80 - 1) * 4
+				ld			de, work_area + 1
+				ld			[hl], a				; [hl] = A = 0 (return value of write_vdp_regs)
+				ld			bc, 80 * 4 - 1
 				ldir
 				ei
 				ret
@@ -368,7 +351,7 @@ calc_reg_value::
 				rra											; A  = [? ][S8][S7][S6][S5][S4][S3][S2]
 				rra											; A  = [? ][? ][S8][S7][S6][S5][S4][S3]
 				inc			a
-				and			a, 0x3f							; A  = [0 ][0 ][S8][S7][S6][S5][S4][S3]
+				and			a, 0x3F							; A  = [0 ][0 ][S8][S7][S6][S5][S4][S3]
 				ld			[ix + 2], a
 
 				; R#27 の値
@@ -429,20 +412,29 @@ _wait_clash_sprite:
 ; VDPのコントロールレジスタへ値を書き込む
 ;
 ; input:
-;	D ..... VDPレジスタ番号
-;	E ..... VDPレジスタに書き込む値
-; break:
 ;	none
+; break:
+;	AF,HL,E
+; comment:
+;	呼び出し元に書き込むデータ列を配置する
 ; -----------------------------------------------------------------------------
-				scope		write_vdp_reg
-write_vdp_reg::
-				push		af
+				scope		write_vdp_regs
+write_vdp_regs::
+				pop			hl
+				jr			start1
+loop1:
+				ld			e, a
+				ld			a, [hl]
+				inc			hl
+				out			[vdp_port1], a
 				ld			a, e
 				out			[vdp_port1], a
-				ld			a, d
-				out			[vdp_port1], a
-				pop			af
-				ret
+start1:
+				ld			a, [hl]
+				inc			hl
+				or			a, a
+				jr			nz, loop1
+				jp			hl
 				endscope
 
 ; -----------------------------------------------------------------------------
@@ -474,8 +466,7 @@ loop:
 				out			[vdp_port0], a
 				dec			c
 				jr			nz, loop
-				dec			b
-				jr			nz, loop
+				djnz		loop
 				ret
 				endscope
 
@@ -511,15 +502,20 @@ set_write_vram_address::
 				ret
 				endscope
 
+
 ; -----------------------------------------------------------------------------
 ; 色設定データ
 ;	[palette#0 RB], [palette#0 G], [palette#1 RB], [palette#1 G]
 ; -----------------------------------------------------------------------------
-color_data::
+color_data1::
 				db			0x00, 0x00, 0x07, 0x00		; Logo Screen 設定が 0 の場合の色
 				db			0x27, 0x02, 0x20, 0x04		; Logo Screen 設定が 1 の場合の色
 				db			0x56, 0x00, 0x72, 0x02		; Logo Screen 設定が 2 の場合の色
 				db			0x70, 0x00, 0x70, 0x05		; Logo Screen 設定が 3 の場合の色
+
+color_data2::
+				db			0x44, 0x04					; palette#2 : gray
+				db			0x77, 0x07					; palette#3 : white
 
 ; -----------------------------------------------------------------------------
 ; スプライトアトリビュートテーブル初期化データ
@@ -605,6 +601,9 @@ logo_draw_command_size := logo_draw_command_end - logo_draw_command
 logo_data::
 				binary_link "logo.bin"
 end_of_program::
+				if (color_data1 & 0xFF) + 16 > 0xFF
+					error "COLOR DATA BOUNDARY EXCEEDED"
+				endif 
 				if end_of_program > 0x8000
 					error "LOGO DATA IS TOO BIG!! (Over " + (end_of_program - 0x8000) + "Bytes)"
 				else
