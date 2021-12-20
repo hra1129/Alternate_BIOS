@@ -256,14 +256,8 @@ _lmmc_end:
 ; -----------------------------------------------------------------------------
 				scope		animation_process
 animation_process::
-				ld			hl, 0x00FF
-				ld			[work_area + 0], hl
-				ld			hl, 0x0120
-				ld			[work_area + 2], hl
-				ld			hl, work_area
-				ld			de, work_area + 4
-				ld			bc, (80 - 1) * 4
-				ldir
+				call		_fill_work_area
+				dw			0x00FF, 0x0120
 
 _wait_vsync1:
 				in			a, [vdp_port1]
@@ -325,13 +319,22 @@ _not_carry1:
 				db			0x80 |  2, 0x1F		; R#2  = 1Fh : 表示ページ0
 				db			0x00
 
-				ld			hl, work_area
-				ld			de, work_area + 1
-				ld			[hl], a				; [hl] = A = 0 (return value of write_vdp_regs)
-				ld			bc, 80 * 4 - 1
-				ldir
+				call		_fill_work_area
+				dw			0, 0
 				ei
 				ret
+
+_fill_work_area:
+				pop			hl
+				ld			de, work_area
+				push		de
+				ld			bc, 4
+				ldir
+				ex			[sp], hl
+				ld			bc, (80 - 1) * 4
+				ldir
+				ret
+
 				endscope
 
 ; -----------------------------------------------------------------------------
