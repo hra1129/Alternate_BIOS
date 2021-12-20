@@ -25,6 +25,11 @@
 ;
 ; -----------------------------------------------------------------------------
 
+PPI_PORT_A				:= 0xA8
+PPI_PORT_B				:= 0xA9
+PPI_PORT_C				:= 0xAA
+PPI_PORT_CMD			:= 0xAB
+
 						org		0x0000
 
 chkram::
@@ -41,6 +46,42 @@ synchr::
 
 font_data::
 						include	"altbios_font.asm"
+
+; -----------------------------------------------------------------------------
+; [BIOS ENTRY] CHKRAM
+;
+; input:
+;   None
+; output:
+;   None
+; -----------------------------------------------------------------------------
+						scope	_chkram
+_chkram::
+						ld		a, 0x82					; PortA, C => Output, PortB => Input, With RESET
+						out		[ PPI_PORT_CMD ], a
+						ld		a, 0x50
+						out		[ PPI_PORT_C ], a		; CAPS-LED OFF, CMT-MOTOR OFF
+						xor		a, a
+						ld		c, a
+
+						; 拡張スロットの有無を調べる
+						out		[ PPI_PORT_A ], a		; PrimarySlot
+						sla		c
+						ld		b, 0
+						ld		hl, 0xFFFF
+						ld		[hl], 0xF0				; 0x0Fを書く
+						ld		a, [hl]					; 拡張スロットがあれば 0xF0が読まれる
+						sub		a, 0x0Fh				; 拡張スロットがあれば 0 になる
+						jr		nz, not_found_ext_slot
+
+						ld		[hl], a					; まだ確実で無いので 0を書く
+						ld		a, [hl]					; 拡張スロットがあれば 0xFF になる
+						inc		a						; 拡張スロットがあれば 0 になる
+						jr		nz, not_found_ext_slot
+
+not_found_ext_slot:
+
+						endscope
 
 ; -----------------------------------------------------------------------------
 ; [BIOS ENTRY] SYNCHR
