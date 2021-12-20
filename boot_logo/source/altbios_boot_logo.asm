@@ -34,7 +34,7 @@ vdp_port3		:=			0x9B
 rtc_address		:=			0xB4
 rtc_data		:=			0xB5
 
-work_area		:=			0xF975				; PLAY•¶‚Ìƒ[ƒNƒGƒŠƒA 384byte
+work_area		:=			0xF975				; PLAYæ–‡ã®ãƒ¯ãƒ¼ã‚¯ã‚¨ãƒªã‚¢ 384byte
 
 ; -----------------------------------------------------------------------------
 ; Initialize VDP
@@ -46,20 +46,20 @@ init_vdp::
 				call		write_vdp_regs
 
 vdp_init_data::
-				db			0x80 |  1, 0x23				; R#1  = ƒ‚[ƒhƒŒƒWƒXƒ^ SCREEN6, ‰æ–Ê”ñ•\¦
-				db			0x80 |  0, 0x08				; R#0  = ƒ‚[ƒhƒŒƒWƒXƒ^ SCREEN6
-				db			0x80 |  8, 0x28				; R#8  = ƒ‚[ƒhƒŒƒWƒXƒ^ palette0‚Í•s“§–¾
-				db			0x80 |  9, 0x00				; R#9  : ƒ‚[ƒhƒŒƒWƒXƒ^
-				db			0x80 |  2, 0x1F | (1 << 5)	; R#2  : ƒpƒ^[ƒ“ƒl[ƒ€ƒe[ƒuƒ‹ (•\¦ƒy[ƒW 1)
-				db			0x80 |  5, 0x7780 >> 7		; R#5  : ƒXƒvƒ‰ƒCƒgƒAƒgƒŠƒrƒ…[ƒgƒe[ƒuƒ‹‚Ì‰ºˆÊ
-				db			0x80 | 11, 0x00				; R#11 : ƒXƒvƒ‰ƒCƒgƒAƒgƒŠƒrƒ…[ƒgƒe[ƒuƒ‹‚ÌãˆÊ
-				db			0x80 |  6, 0x7800 >> 11		; R#6  : ƒXƒvƒ‰ƒCƒgƒpƒ^[ƒ“ƒWƒFƒlƒŒ[ƒ^ƒe[ƒuƒ‹‚ÌƒAƒhƒŒƒX
-				db			0x80 |  7, 0x55				; R#7  : ”wŒiF 
-				db			0x80 | 15, 2				; R#15 : ƒXƒe[ƒ^ƒXƒŒƒWƒXƒ^ 2
-				db			0x80 | 16, 0				; R#16 : ƒpƒŒƒbƒgƒŒƒWƒXƒ^ 0
-				db			0x80 | 25, 3				; R#25 : ƒ‚[ƒhƒŒƒWƒXƒ^
-				db			0x80 | 26, 0x20				; R#26 : …•½ƒXƒNƒ[ƒ‹ƒŒƒWƒXƒ^
-				db			0x80 | 27, 0x01				; R#27 : …•½ƒXƒNƒ[ƒ‹ƒŒƒWƒXƒ^
+				db			0x80 |  1, 0x23				; R#1  = ãƒ¢ãƒ¼ãƒ‰ãƒ¬ã‚¸ã‚¹ã‚¿ SCREEN6, ç”»é¢éè¡¨ç¤º
+				db			0x80 |  0, 0x08				; R#0  = ãƒ¢ãƒ¼ãƒ‰ãƒ¬ã‚¸ã‚¹ã‚¿ SCREEN6
+				db			0x80 |  8, 0x28				; R#8  = ãƒ¢ãƒ¼ãƒ‰ãƒ¬ã‚¸ã‚¹ã‚¿ palette0ã¯ä¸é€æ˜
+				db			0x80 |  9, 0x00				; R#9  : ãƒ¢ãƒ¼ãƒ‰ãƒ¬ã‚¸ã‚¹ã‚¿
+				db			0x80 |  2, 0x1F | (1 << 5)	; R#2  : ãƒ‘ã‚¿ãƒ¼ãƒ³ãƒãƒ¼ãƒ ãƒ†ãƒ¼ãƒ–ãƒ« (è¡¨ç¤ºãƒšãƒ¼ã‚¸ 1)
+				db			0x80 |  5, 0x7780 >> 7		; R#5  : ã‚¹ãƒ—ãƒ©ã‚¤ãƒˆã‚¢ãƒˆãƒªãƒ“ãƒ¥ãƒ¼ãƒˆãƒ†ãƒ¼ãƒ–ãƒ«ã®ä¸‹ä½
+				db			0x80 | 11, 0x00				; R#11 : ã‚¹ãƒ—ãƒ©ã‚¤ãƒˆã‚¢ãƒˆãƒªãƒ“ãƒ¥ãƒ¼ãƒˆãƒ†ãƒ¼ãƒ–ãƒ«ã®ä¸Šä½
+				db			0x80 |  6, 0x7800 >> 11		; R#6  : ã‚¹ãƒ—ãƒ©ã‚¤ãƒˆãƒ‘ã‚¿ãƒ¼ãƒ³ã‚¸ã‚§ãƒãƒ¬ãƒ¼ã‚¿ãƒ†ãƒ¼ãƒ–ãƒ«ã®ã‚¢ãƒ‰ãƒ¬ã‚¹
+				db			0x80 |  7, 0x55				; R#7  : èƒŒæ™¯è‰² 
+				db			0x80 | 15, 2				; R#15 : ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒ¬ã‚¸ã‚¹ã‚¿ 2
+				db			0x80 | 16, 0				; R#16 : ãƒ‘ãƒ¬ãƒƒãƒˆãƒ¬ã‚¸ã‚¹ã‚¿ 0
+				db			0x80 | 25, 3				; R#25 : ãƒ¢ãƒ¼ãƒ‰ãƒ¬ã‚¸ã‚¹ã‚¿
+				db			0x80 | 26, 0x20				; R#26 : æ°´å¹³ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ãƒ¬ã‚¸ã‚¹ã‚¿
+				db			0x80 | 27, 0x01				; R#27 : æ°´å¹³ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ãƒ¬ã‚¸ã‚¹ã‚¿
 				db			0x80 | 36, 0				; R#36 : DX  = 0
 				db			0x80 | 37, 0				; R#37 :
 				db			0x80 | 38, 0				; R#38 : DY  = 0
@@ -94,7 +94,7 @@ init_palette::
 				out			[rtc_data], a		; Set BLOCK2
 
 				ld			a, 0x0B
-				out			[rtc_address], a	; Logo Screenİ’è
+				out			[rtc_address], a	; Logo Screenè¨­å®š
 				in			a, [rtc_data]
 				and			a, 0x03
 				add			a, a
@@ -122,12 +122,12 @@ init_palette::
 				call		fill_vram
 
 				ld			h, 0x78				; sprite generator table
-				ld			bc, 0x30			; pattern#0 and pattern#1 (half)
+				ld			c, 0x30				; pattern#0 and pattern#1 (half)
 				ld			a, 0xFF
 				call		fill_vram
 
 				ld			l, 0x30				; sprite generator table
-				ld			bc, 0x10			; pattern#1 (half)
+				ld			c, 0x10				; pattern#1 (half)
 				ld			a, 0xF0
 				call		fill_vram
 
@@ -159,33 +159,32 @@ _run_lmmc_command:
 
 				call		write_vdp_regs
 
-				db			0x80 | 17, 0x80 | 44	; R#17 = 0x80 | 44 (”ñƒI[ƒgƒCƒ“ƒNƒŠƒƒ“ƒg)
+				db			0x80 | 17, 0x80 | 44	; R#17 = 0x80 | 44 (éã‚ªãƒ¼ãƒˆã‚¤ãƒ³ã‚¯ãƒªãƒ¡ãƒ³ãƒˆ)
 				db			0x00
 
-				; RLE‚ğ“WŠJ‚·‚é
-				; HL ... ˆ³kƒf[ƒ^‚ÌƒAƒhƒŒƒX
-				; A .... ’…–ÚˆÊ’u‚Ìˆ³kƒf[ƒ^‚Ì’l
+				; RLEã‚’å±•é–‹ã™ã‚‹
+				; HL ... åœ§ç¸®ãƒ‡ãƒ¼ã‚¿ã®ã‚¢ãƒ‰ãƒ¬ã‚¹
+				; A .... ç€ç›®ä½ç½®ã®åœ§ç¸®ãƒ‡ãƒ¼ã‚¿ã®å€¤
 				; C .... VDP port#3
-				; E .... Œ»İ‚ÌF: 0=•, 3=”’
+				; E .... ç¾åœ¨ã®è‰²: 0=é»’, 3=ç™½
 				ld			hl, logo_data
 				ld			c, vdp_port3
-				; _decompress_loop ƒ‹[ƒvŠJn“_‚Å A = 0 (return value of write_vdp_regs)
+				; _decompress_loop ãƒ«ãƒ¼ãƒ—é–‹å§‹æ™‚ç‚¹ã§ A = 0 (return value of write_vdp_regs)
 _decompress_loop:
 				ld			e, a
 				ld			a, [hl]
 				inc			hl
 				rlca
-				jr			nc, _fixed_data					; [0][C1][C2][C3][N]ƒ^ƒCƒv‚È‚ç fixed_data ‚ÖB
-
-				; [1]‚Ìê‡
-				; D .... ŠDF‚ª•t‚­ê‡ 1, •t‚©‚È‚¢ê‡ 0
-				rlca
 				ld			d, a
+				jr			nc, _fixed_data					; [0][C1][C2][C3][N]ã‚¿ã‚¤ãƒ—ãªã‚‰ fixed_data ã¸ã€‚
+
+				; [1]ã®å ´åˆ
+				; D .... ç°è‰²ãŒä»˜ãå ´åˆ 1, ä»˜ã‹ãªã„å ´åˆ 0
+				rlca
 				and			a, 1
-				ex			af, af'							; GRAYî•ñ‚ğ•Û‘¶
+				ex			af, af'							; GRAYæƒ…å ±ã‚’ä¿å­˜
 				ld			a, d
 
-				rrca
 				rrca
 				and			a, 0b0011_1111					;  0, 1, 2, ... , 63
 				ld			d, a
@@ -199,8 +198,8 @@ _run_length_loop:
 				djnz		_run_length_loop
 				ld			a, d
 				or			a, a
-				jr			nz, _gray_process				; RUN‚ª0‚Å‚È‚©‚Á‚½ê‡‚ÍAƒ‹[ƒvI—¹B
-				ld			d, [hl]							; Ÿ‚ÌRUN‚ğæ“¾B
+				jr			nz, _gray_process				; RUNãŒ0ã§ãªã‹ã£ãŸå ´åˆã¯ã€ãƒ«ãƒ¼ãƒ—çµ‚äº†ã€‚
+				ld			d, [hl]							; æ¬¡ã®RUNã‚’å–å¾—ã€‚
 				inc			hl
 				ld			b, d
 				inc			b
@@ -210,19 +209,18 @@ _run_length_loop:
 _gray_process:
 				ex			af, af'
 				or			a, a
-				jr			z, _next_color					; ŠDF‚ª•t‚©‚È‚¢ê‡‚Í‰½‚à‚¹‚¸‚É–ß‚é
+				jr			z, _next_color					; ç°è‰²ãŒä»˜ã‹ãªã„å ´åˆã¯ä½•ã‚‚ã›ãšã«æˆ»ã‚‹
 				call		wait_tansfer_ready
-				ld			a, 2							; ŠDF
+				ld			a, 2							; ç°è‰²
 				out			[c], a
 _next_color:
 				ld			a, e
-				xor			a, 3
+				xor			a, 3							; æ¬¡ã®è‰²ã¯åè»¢
 				jr			_decompress_loop
 
-				; [0][C1][C2][C3][N]‚Ìê‡
+				; [0][C1][C2][C3][N]ã®å ´åˆ
 _fixed_data:
 				ld			b, 3
-				ld			d, a
 				ex			af, af'
 _fixed_data_loop:
 				ld			e, 0
@@ -233,10 +231,10 @@ _fixed_data_loop:
 				call		wait_tansfer_ready
 				out			[c], e							; R#44 = C1
 				djnz		_fixed_data_loop
-				rlc			d								; D = [N] 0 ‚Ü‚½‚Í 1
+				rlc			d								; D = [N] 0 ã¾ãŸã¯ 1
 				ld			a, d
 				add			a, d
-				add			a, d							; A = 0 ‚Ü‚½‚Í 3
+				add			a, d							; A = 0 ã¾ãŸã¯ 3
 				jr			_decompress_loop
 
 				endscope
@@ -254,18 +252,12 @@ _lmmc_end:
 				endscope
 
 ; -----------------------------------------------------------------------------
-; ƒAƒjƒ[ƒVƒ‡ƒ“ˆ—
+; ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³å‡¦ç†
 ; -----------------------------------------------------------------------------
 				scope		animation_process
 animation_process::
-				ld			hl, 0x00FF
-				ld			[work_area + 0], hl
-				ld			hl, 0x0120
-				ld			[work_area + 2], hl
-				ld			hl, work_area
-				ld			de, work_area + 4
-				ld			bc, (80 - 1) * 4
-				ldir
+				call		_fill_work_area
+				dw			0x00FF, 0x0120
 
 _wait_vsync1:
 				in			a, [vdp_port1]
@@ -279,7 +271,7 @@ _wait_vsync2:
 				call		write_vdp_regs
 
 				db			0x80 | 15, 0		; R#15 = 0 (S#0)
-				db			0x80 |  1, 0x63		; R#1  = 63h : ‰æ–Ê•\¦ON
+				db			0x80 |  1, 0x63		; R#1  = 63h : ç”»é¢è¡¨ç¤ºON
 				db			0x00
 
 				ld			bc, (21 << 8) | vdp_port3
@@ -293,11 +285,11 @@ _update_scroll_position:
 				ld			b, 40
 				ld			d, 0
 _update_scroll_loop:
-				; ’l‚ªŒ¸‚Á‚Ä‚¢‚­ƒ‰ƒCƒ“
+				; å€¤ãŒæ¸›ã£ã¦ã„ããƒ©ã‚¤ãƒ³
 				ld			l, [ix + 0]
 				ld			h, [ix + 1]
 				ld			e, [iy + 0]
-				or			a, a
+				;or			a, a				; Cy = 0
 				sbc			hl, de
 				jr			nc, _not_borrow1
 				ld			l, d
@@ -305,7 +297,7 @@ _update_scroll_loop:
 _not_borrow1:
 				call		calc_reg_value
 
-				; ’l‚ª‘‚¦‚Ä‚¢‚­ƒ‰ƒCƒ“
+				; å€¤ãŒå¢—ãˆã¦ã„ããƒ©ã‚¤ãƒ³
 				ld			l, [ix + 0]
 				ld			h, [ix + 1]
 				ld			e, [iy + 0]
@@ -324,26 +316,35 @@ _not_carry1:
 				call		write_vdp_regs
 
 				db			0x80 | 25, 0		; R#25 = 0
-				db			0x80 |  2, 0x1F		; R#2  = 1Fh : •\¦ƒy[ƒW0
+				db			0x80 |  2, 0x1F		; R#2  = 1Fh : è¡¨ç¤ºãƒšãƒ¼ã‚¸0
 				db			0x00
 
-				ld			hl, work_area
-				ld			de, work_area + 1
-				ld			[hl], a				; [hl] = A = 0 (return value of write_vdp_regs)
-				ld			bc, 80 * 4 - 1
-				ldir
+				call		_fill_work_area
+				dw			0, 0
 				ei
 				ret
+
+_fill_work_area:
+				pop			hl
+				ld			de, work_area
+				push		de
+				ld			bc, 4
+				ldir
+				ex			[sp], hl
+				ld			bc, (80 - 1) * 4
+				ldir
+				ret
+
 				endscope
 
 ; -----------------------------------------------------------------------------
-; …•½ƒXƒNƒ[ƒ‹ƒŒƒWƒXƒ^‚Éİ’è‚·‚é’l‚É•ÏŠ·‚·‚é
+; æ°´å¹³ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ãƒ¬ã‚¸ã‚¹ã‚¿ã«è¨­å®šã™ã‚‹å€¤ã«å¤‰æ›ã™ã‚‹
 ; -----------------------------------------------------------------------------
 				scope		calc_reg_value
 calc_reg_value::
 				ld			[ix + 0], l
 				ld			[ix + 1], h
-				; R#26 ‚Ì’l
+				; R#26 ã®å€¤
 				dec			hl								; HL = [???????][S8][S7][S6][S5][S4][S3][S2][S1][S0]
 				ld			a, l							; A  = [S7][S6][S5][S4][S3][S2][S1][S0]
 				rrc			h								; Cy = [S8]
@@ -354,7 +355,7 @@ calc_reg_value::
 				and			a, 0x3F							; A  = [0 ][0 ][S8][S7][S6][S5][S4][S3]
 				ld			[ix + 2], a
 
-				; R#27 ‚Ì’l
+				; R#27 ã®å€¤
 				ld			a, 7
 				sub			a, l							; A  = 7 - [?????][S2][S1][S0]
 				and			a, 0x07
@@ -369,16 +370,16 @@ calc_reg_value::
 				endscope
 
 ; -----------------------------------------------------------------------------
-; …•½ƒXƒNƒ[ƒ‹ƒŒƒWƒXƒ^‚ğXV‚·‚é
+; æ°´å¹³ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ãƒ¬ã‚¸ã‚¹ã‚¿ã‚’æ›´æ–°ã™ã‚‹
 ; -----------------------------------------------------------------------------
 				scope		set_scroll
 set_scroll::
 				ld			b, 80
 				ld			hl, work_area + 2
 _line_loop:
-				ld			d, [hl]		; R#26‚Ì’l
+				ld			d, [hl]		; R#26ã®å€¤
 				inc			hl
-				ld			e, [hl]		; R#27‚Ì’l
+				ld			e, [hl]		; R#27ã®å€¤
 				inc			hl
 				inc			hl
 				inc			hl
@@ -409,14 +410,14 @@ _wait_clash_sprite:
 				endscope
 
 ; -----------------------------------------------------------------------------
-; VDP‚ÌƒRƒ“ƒgƒ[ƒ‹ƒŒƒWƒXƒ^‚Ö’l‚ğ‘‚«‚Ş
+; VDPã®ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ãƒ¬ã‚¸ã‚¹ã‚¿ã¸å€¤ã‚’æ›¸ãè¾¼ã‚€
 ;
 ; input:
 ;	none
 ; break:
 ;	AF,HL,E
 ; comment:
-;	ŒÄ‚Ño‚µŒ³‚É‘‚«‚Şƒf[ƒ^—ñ‚ğ”z’u‚·‚é
+;	å‘¼ã³å‡ºã—å…ƒã«æ›¸ãè¾¼ã‚€ãƒ‡ãƒ¼ã‚¿åˆ—ã‚’é…ç½®ã™ã‚‹
 ; -----------------------------------------------------------------------------
 				scope		write_vdp_regs
 write_vdp_regs::
@@ -441,15 +442,15 @@ start1:
 ;	fill vram
 ;
 ; input:
-;	HL .... ‘‚«‚İƒAƒhƒŒƒX Address[15:0] ¦Address[16] ‚Í 0 ‚Éİ’è‚³‚ê‚é
-;	BC .... ‘‚«‚ŞƒoƒCƒg”
-;	A ..... ‘‚«‚Ş’l
+;	HL .... æ›¸ãè¾¼ã¿ã‚¢ãƒ‰ãƒ¬ã‚¹ Address[15:0] â€»Address[16] ã¯ 0 ã«è¨­å®šã•ã‚Œã‚‹
+;	BC .... æ›¸ãè¾¼ã‚€ãƒã‚¤ãƒˆæ•°
+;	A ..... æ›¸ãè¾¼ã‚€å€¤
 ; output:
 ;	none
 ; break:
 ;	A,B,C,E,F,A',F'
 ; comment:
-;	Š„‚è‚İ‹Ö~‚ÅŒÄ‚Ô‚±‚ÆB
+;	å‰²ã‚Šè¾¼ã¿ç¦æ­¢ã§å‘¼ã¶ã“ã¨ã€‚
 ; -----------------------------------------------------------------------------
 				scope		fill_vram
 fill_vram::
@@ -474,13 +475,13 @@ loop:
 ;	set write vram address
 ;
 ; input:
-;	HL .... ‘‚«‚İƒAƒhƒŒƒX Address[15:0] ¦Address[16] ‚Í 0 ‚Éİ’è‚³‚ê‚é
+;	HL .... æ›¸ãè¾¼ã¿ã‚¢ãƒ‰ãƒ¬ã‚¹ Address[15:0] â€»Address[16] ã¯ 0 ã«è¨­å®šã•ã‚Œã‚‹
 ; output:
 ;	none
 ; break:
 ;	A,F,A',F'
 ; comment:
-;	Š„‚è‚İ‹Ö~‚ÅŒÄ‚Ô‚±‚ÆB
+;	å‰²ã‚Šè¾¼ã¿ç¦æ­¢ã§å‘¼ã¶ã“ã¨ã€‚
 ; -----------------------------------------------------------------------------
 				scope		set_write_vram_address
 set_write_vram_address::
@@ -504,21 +505,21 @@ set_write_vram_address::
 
 
 ; -----------------------------------------------------------------------------
-; Fİ’èƒf[ƒ^
+; è‰²è¨­å®šãƒ‡ãƒ¼ã‚¿
 ;	[palette#0 RB], [palette#0 G], [palette#1 RB], [palette#1 G]
 ; -----------------------------------------------------------------------------
 color_data1::
-				db			0x00, 0x00, 0x07, 0x00		; Logo Screen İ’è‚ª 0 ‚Ìê‡‚ÌF
-				db			0x27, 0x02, 0x20, 0x04		; Logo Screen İ’è‚ª 1 ‚Ìê‡‚ÌF
-				db			0x56, 0x00, 0x72, 0x02		; Logo Screen İ’è‚ª 2 ‚Ìê‡‚ÌF
-				db			0x70, 0x00, 0x70, 0x05		; Logo Screen İ’è‚ª 3 ‚Ìê‡‚ÌF
+				db			0x00, 0x00, 0x07, 0x00		; Logo Screen è¨­å®šãŒ 0 ã®å ´åˆã®è‰²
+				db			0x27, 0x02, 0x20, 0x04		; Logo Screen è¨­å®šãŒ 1 ã®å ´åˆã®è‰²
+				db			0x56, 0x00, 0x72, 0x02		; Logo Screen è¨­å®šãŒ 2 ã®å ´åˆã®è‰²
+				db			0x70, 0x00, 0x70, 0x05		; Logo Screen è¨­å®šãŒ 3 ã®å ´åˆã®è‰²
 
 color_data2::
 				db			0x44, 0x04					; palette#2 : gray
 				db			0x77, 0x07					; palette#3 : white
 
 ; -----------------------------------------------------------------------------
-; ƒXƒvƒ‰ƒCƒgƒAƒgƒŠƒrƒ…[ƒgƒe[ƒuƒ‹‰Šú‰»ƒf[ƒ^
+; ã‚¹ãƒ—ãƒ©ã‚¤ãƒˆã‚¢ãƒˆãƒªãƒ“ãƒ¥ãƒ¼ãƒˆãƒ†ãƒ¼ãƒ–ãƒ«åˆæœŸåŒ–ãƒ‡ãƒ¼ã‚¿
 ; -----------------------------------------------------------------------------
 sprite_attrib::
 				db			0x01F, 0x0E8, 0x000, 0x000	; Sprite#0 ( 232,  31 ), Pattern 0, Color 0
@@ -530,13 +531,13 @@ sprite_attrib::
 				db			0x01F, 0x000, 0x004, 0x000	; Sprite#6 (   0,  31 ), Pattern 4, Color 0
 				db			0x03F, 0x000, 0x004, 0x000	; Sprite#7 (   0,  63 ), Pattern 4, Color 0
 				db			0x04F, 0x000, 0x004, 0x000	; Sprite#8 (   0,  79 ), Pattern 4, Color 0
-				db			0x0D8, 0x000, 0x000, 0x000	; Sprite#9 (   0, 216 ), Pattern 0, Color 0 ¦ Y = 216 ‚ÅA‚±‚êˆÈ~‚ÌƒXƒvƒ‰ƒCƒg‚ğ•\¦‹Ö~
+				db			0x0D8, 0x000, 0x000, 0x000	; Sprite#9 (   0, 216 ), Pattern 0, Color 0 â€» Y = 216 ã§ã€ã“ã‚Œä»¥é™ã®ã‚¹ãƒ—ãƒ©ã‚¤ãƒˆã‚’è¡¨ç¤ºç¦æ­¢
 sprite_attrib_end::
 
 sprite_attrib_size	:= sprite_attrib_end - sprite_attrib
 
 ; -----------------------------------------------------------------------------
-; ƒAƒjƒ[ƒVƒ‡ƒ“ƒf[ƒ^
+; ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ãƒ‡ãƒ¼ã‚¿
 ; -----------------------------------------------------------------------------
 animation_data::
 				db			0x13, 0x0D
@@ -581,7 +582,7 @@ animation_data::
 				db			0x11, 0x0E
 
 ; -----------------------------------------------------------------------------
-; ƒƒSƒf[ƒ^•`‰æ—p LMMCƒRƒ}ƒ“ƒh
+; ãƒ­ã‚´ãƒ‡ãƒ¼ã‚¿æç”»ç”¨ LMMCã‚³ãƒãƒ³ãƒ‰
 ; -----------------------------------------------------------------------------
 logo_draw_command::
 				dw			45							; R#36, 37: DX
@@ -596,7 +597,7 @@ logo_draw_command_end:
 logo_draw_command_size := logo_draw_command_end - logo_draw_command
 
 ; -----------------------------------------------------------------------------
-; ƒƒSƒf[ƒ^
+; ãƒ­ã‚´ãƒ‡ãƒ¼ã‚¿
 ; -----------------------------------------------------------------------------
 logo_data::
 				binary_link "logo.bin"
@@ -604,7 +605,6 @@ end_of_program::
 				if (color_data1 & 0xFF) + 16 > 0xFF
 					error "COLOR DATA BOUNDARY EXCEEDED"
 				endif 
-
 				if end_of_program > 0x8000
 					error "LOGO DATA IS TOO BIG!! (Over " + (end_of_program - 0x8000) + "Bytes)"
 				else
