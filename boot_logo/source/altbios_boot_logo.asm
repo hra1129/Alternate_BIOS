@@ -309,9 +309,9 @@ _wait_clash_sprite:
 				out			[vdp_port1], a
 				ld			a, 0x80 | 17
 				out			[vdp_port1], a			; R#17 = 26
-				xor			a, a
-				out			[c], a					; R#26 = 0
-				out			[c], a					; R#27 = 0
+
+				out			[c], b					; R#26 = 0
+				out			[c], b					; R#27 = 0
 
 _update_scroll_position:
 				ld			ix, work_area
