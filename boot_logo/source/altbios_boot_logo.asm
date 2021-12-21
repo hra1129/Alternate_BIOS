@@ -74,8 +74,8 @@ vdp_init_data::
 				db			0x00
 wait_vdp_command:
 				in			a, [vdp_port1]
-				and			a, 1
-				jr			nz, wait_vdp_command
+				rrca
+				jr			c, wait_vdp_command
 
 				endscope
 
