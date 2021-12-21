@@ -118,17 +118,17 @@ init_palette::
 				scope		init_vram
 				ld			hl, 0x7400			; sprite color table
 				ld			bc, 16 * 32			; 16[line/sprite] * 32[sprite]
-				ld			a, 0x05				; palette#1, palette#1
+				ld			e, 0x05				; palette#1, palette#1
 				call		fill_vram
 
 				ld			h, 0x78				; sprite generator table
-				ld			c, 0x30				; pattern#0 and pattern#1 (half)
-				ld			a, 0xFF
+				ld			bc, 0x30 + 256		; pattern#0 and pattern#1 (half)
+				ld			e, 0xFF
 				call		fill_vram
 
 				ld			l, 0x30				; sprite generator table
-				ld			c, 0x10				; pattern#1 (half)
-				ld			a, 0xF0
+				ld			bc, 0x10 + 256		; pattern#1 (half)
+				ld			e, 0xF0
 				call		fill_vram
 
 				ld			hl, 0x7600			; sprite attribute table
@@ -440,26 +440,25 @@ start1:
 ;
 ; input:
 ;	HL .... 書き込みアドレス Address[15:0] ※Address[16] は 0 に設定される
-;	BC .... 書き込むバイト数
-;	A ..... 書き込む値
+;	BC .... 書き込むバイト数補正後(バイト数が256の倍数ではない場合256を加算)
+;	E ..... 書き込む値
 ; output:
 ;	none
 ; break:
-;	A,B,C,E,F,A',F'
+;	A,B,C,F,A',F'
 ; comment:
 ;	割り込み禁止で呼ぶこと。
 ; -----------------------------------------------------------------------------
 				scope		fill_vram
 fill_vram::
-				ld			e, a
 				call		set_write_vram_address
 
-				ld			a, c
-				or			a, a
+;				ld			a, c
+;				or			a, a
 				ld			a, e
-				jr			z, skip
-				inc			b
-skip:
+;				jr			z, skip
+;				inc			b
+;skip:
 loop:
 				out			[vdp_port0], a
 				dec			c
@@ -501,20 +500,6 @@ set_write_vram_address::
 				ret
 				endscope
 
-
-; -----------------------------------------------------------------------------
-; 色設定データ
-;	[palette#0 RB], [palette#0 G], [palette#1 RB], [palette#1 G]
-; -----------------------------------------------------------------------------
-color_data1::
-				db			0x00, 0x00, 0x07, 0x00		; Logo Screen 設定が 0 の場合の色
-				db			0x27, 0x02, 0x20, 0x04		; Logo Screen 設定が 1 の場合の色
-				db			0x56, 0x00, 0x72, 0x02		; Logo Screen 設定が 2 の場合の色
-				db			0x70, 0x00, 0x70, 0x05		; Logo Screen 設定が 3 の場合の色
-
-color_data2::
-				db			0x44, 0x04					; palette#2 : gray
-				db			0x77, 0x07					; palette#3 : white
 
 ; -----------------------------------------------------------------------------
 ; アニメーションデータ
@@ -560,6 +545,20 @@ animation_data::
 				db			0x0C, 0x0D
 				db			0x16, 0x0C
 				db			0x11, 0x0E
+
+; -----------------------------------------------------------------------------
+; 色設定データ
+;	[palette#0 RB], [palette#0 G], [palette#1 RB], [palette#1 G]
+; -----------------------------------------------------------------------------
+color_data1::
+				db			0x00, 0x00, 0x07, 0x00		; Logo Screen 設定が 0 の場合の色
+				db			0x27, 0x02, 0x20, 0x04		; Logo Screen 設定が 1 の場合の色
+				db			0x56, 0x00, 0x72, 0x02		; Logo Screen 設定が 2 の場合の色
+				db			0x70, 0x00, 0x70, 0x05		; Logo Screen 設定が 3 の場合の色
+
+color_data2::
+				db			0x44, 0x04					; palette#2 : gray
+				db			0x77, 0x07					; palette#3 : white
 
 ; -----------------------------------------------------------------------------
 ; スプライトアトリビュートテーブル初期化データ
