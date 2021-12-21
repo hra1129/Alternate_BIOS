@@ -135,7 +135,7 @@ init_palette::
 				call		set_write_vram_address
 				ld			hl, sprite_attrib
 				ld			bc, (sprite_attrib_size << 8) | vdp_port0
-				otir
+				;otir
 				endscope
 
 ; -----------------------------------------------------------------------------
@@ -143,7 +143,7 @@ init_palette::
 ; -----------------------------------------------------------------------------
 				scope		decompress_logo_image
 decompress_logo_image::
-				call		write_vdp_regs
+				call		otir_and_write_vdp_regs
 
 				db			0x80 | 25, 3		; MSK = 1, SP2 = 1
 				db			0x80 |  2, 0x3F		; set page 1
@@ -155,9 +155,9 @@ _run_lmmc_command:
 
 				;ld			hl, logo_draw_command
 				ld			bc, (logo_draw_command_size << 8) | vdp_port3
-				otir
+				;otir
 
-				call		write_vdp_regs
+				call		otir_and_write_vdp_regs
 
 				db			0x80 | 17, 0x80 | 44	; R#17 = 0x80 | 44 (非オートインクリメント)
 				db			0x00
@@ -414,6 +414,8 @@ calc_reg_value::
 ;	割り込み禁止で呼ぶこと。
 ; -----------------------------------------------------------------------------
 				scope		write_vdp_regs
+otir_and_write_vdp_regs::
+				otir
 write_vdp_regs::
 				ex			[sp], hl
 				jr			start1
