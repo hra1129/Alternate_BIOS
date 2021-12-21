@@ -274,7 +274,44 @@ _wait_vsync2:
 				ld			bc, (21 << 8) | vdp_port3
 _main_loop:
 				push		bc
-				call		set_scroll
+
+
+; -----------------------------------------------------------------------------
+; 水平スクロールレジスタを更新する
+; -----------------------------------------------------------------------------
+set_scroll:
+				ld			b, 80
+				ld			hl, work_area + 2
+_line_loop:
+				ld			d, [hl]		; R#26の値
+				inc			hl
+				ld			e, [hl]		; R#27の値
+				inc			hl
+				inc			hl
+				inc			hl
+
+				ld			a, 26
+				out			[vdp_port1], a
+				ld			a, 0x80 | 17
+				out			[vdp_port1], a			; R#17 = 26
+
+				in			a, [vdp_port1]
+_wait_clash_sprite:
+				in			a, [vdp_port1]			; S#0
+				and			a, 0x20
+				jp			z, _wait_clash_sprite
+
+				out			[c], d					; R#26
+				out			[c], e					; R#27
+				djnz		_line_loop
+
+				ld			a, 26
+				out			[vdp_port1], a
+				ld			a, 0x80 | 17
+				out			[vdp_port1], a			; R#17 = 26
+				xor			a, a
+				out			[c], a					; R#26 = 0
+				out			[c], a					; R#27 = 0
 
 _update_scroll_position:
 				ld			ix, work_area
@@ -367,46 +404,6 @@ calc_reg_value::
 				endscope
 
 ; -----------------------------------------------------------------------------
-; 水平スクロールレジスタを更新する
-; -----------------------------------------------------------------------------
-				scope		set_scroll
-set_scroll::
-				ld			b, 80
-				ld			hl, work_area + 2
-_line_loop:
-				ld			d, [hl]		; R#26の値
-				inc			hl
-				ld			e, [hl]		; R#27の値
-				inc			hl
-				inc			hl
-				inc			hl
-
-				ld			a, 26
-				out			[vdp_port1], a
-				ld			a, 0x80 | 17
-				out			[vdp_port1], a			; R#17 = 26
-
-				in			a, [vdp_port1]
-_wait_clash_sprite:
-				in			a, [vdp_port1]			; S#0
-				and			a, 0x20
-				jp			z, _wait_clash_sprite
-
-				out			[c], d					; R#26
-				out			[c], e					; R#27
-				djnz		_line_loop
-
-				ld			a, 26
-				out			[vdp_port1], a
-				ld			a, 0x80 | 17
-				out			[vdp_port1], a			; R#17 = 26
-				xor			a, a
-				out			[c], a					; R#26 = 0
-				out			[c], a					; R#27 = 0
-				ret
-				endscope
-
-; -----------------------------------------------------------------------------
 ; VDPのコントロールレジスタへ値を書き込む
 ;
 ; input:
@@ -467,6 +464,7 @@ loop:
 				djnz		loop
 				ret
 				endscope
+
 
 ; -----------------------------------------------------------------------------
 ;	set write vram address
