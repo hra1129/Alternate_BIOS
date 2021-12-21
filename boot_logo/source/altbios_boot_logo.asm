@@ -153,7 +153,7 @@ _run_lmmc_command:
 				db			0x80 | 17, 36		; R#17 = 36
 				db			0x00
 
-				ld			hl, logo_draw_command
+				;ld			hl, logo_draw_command
 				ld			bc, (logo_draw_command_size << 8) | vdp_port3
 				otir
 
@@ -167,7 +167,7 @@ _run_lmmc_command:
 				; A .... 着目位置の圧縮データの値
 				; C .... VDP port#3
 				; E .... 現在の色: 0=黒, 3=白
-				ld			hl, logo_data
+				;ld			hl, logo_data
 				;ld			c, vdp_port3
 				; _decompress_loop ループ開始時点で A = 0 (return value of write_vdp_regs)
 _decompress_loop:
@@ -409,13 +409,13 @@ calc_reg_value::
 ; input:
 ;	呼び出し元の次のコード領域に書き込むデータ列を配置する
 ; break:
-;	A,E,F,H,L
+;	A,E,F
 ; comment:
 ;	割り込み禁止で呼ぶこと。
 ; -----------------------------------------------------------------------------
 				scope		write_vdp_regs
 write_vdp_regs::
-				pop			hl
+				ex			[sp], hl
 				jr			start1
 loop1:
 				ld			e, a
@@ -429,7 +429,8 @@ start1:
 				inc			hl
 				or			a, a
 				jr			nz, loop1
-				jp			hl
+				ex			[sp], hl
+				ret
 				endscope
 
 ; -----------------------------------------------------------------------------
@@ -514,24 +515,6 @@ color_data2::
 				db			0x77, 0x07					; palette#3 : white
 
 ; -----------------------------------------------------------------------------
-; スプライトアトリビュートテーブル初期化データ
-; -----------------------------------------------------------------------------
-sprite_attrib::
-				db			0x01F, 0x0E8, 0x000, 0x000	; Sprite#0 ( 232,  31 ), Pattern 0, Color 0
-				db			0x01F, 0x0E8, 0x000, 0x000	; Sprite#1 ( 232,  31 ), Pattern 0, Color 0
-				db			0x03F, 0x0E8, 0x000, 0x000	; Sprite#2 ( 232,  63 ), Pattern 0, Color 0
-				db			0x03F, 0x0E8, 0x000, 0x000	; Sprite#3 ( 232,  63 ), Pattern 0, Color 0
-				db			0x04F, 0x0E8, 0x000, 0x000	; Sprite#4 ( 232,  79 ), Pattern 0, Color 0
-				db			0x04F, 0x0E8, 0x000, 0x000	; Sprite#5 ( 232,  79 ), Pattern 0, Color 0
-				db			0x01F, 0x000, 0x004, 0x000	; Sprite#6 (   0,  31 ), Pattern 4, Color 0
-				db			0x03F, 0x000, 0x004, 0x000	; Sprite#7 (   0,  63 ), Pattern 4, Color 0
-				db			0x04F, 0x000, 0x004, 0x000	; Sprite#8 (   0,  79 ), Pattern 4, Color 0
-				db			0x0D8, 0x000, 0x000, 0x000	; Sprite#9 (   0, 216 ), Pattern 0, Color 0 ※ Y = 216 で、これ以降のスプライトを表示禁止
-sprite_attrib_end::
-
-sprite_attrib_size	:= sprite_attrib_end - sprite_attrib
-
-; -----------------------------------------------------------------------------
 ; アニメーションデータ
 ; -----------------------------------------------------------------------------
 animation_data::
@@ -575,6 +558,24 @@ animation_data::
 				db			0x0C, 0x0D
 				db			0x16, 0x0C
 				db			0x11, 0x0E
+
+; -----------------------------------------------------------------------------
+; スプライトアトリビュートテーブル初期化データ
+; -----------------------------------------------------------------------------
+sprite_attrib::
+				db			0x01F, 0x0E8, 0x000, 0x000	; Sprite#0 ( 232,  31 ), Pattern 0, Color 0
+				db			0x01F, 0x0E8, 0x000, 0x000	; Sprite#1 ( 232,  31 ), Pattern 0, Color 0
+				db			0x03F, 0x0E8, 0x000, 0x000	; Sprite#2 ( 232,  63 ), Pattern 0, Color 0
+				db			0x03F, 0x0E8, 0x000, 0x000	; Sprite#3 ( 232,  63 ), Pattern 0, Color 0
+				db			0x04F, 0x0E8, 0x000, 0x000	; Sprite#4 ( 232,  79 ), Pattern 0, Color 0
+				db			0x04F, 0x0E8, 0x000, 0x000	; Sprite#5 ( 232,  79 ), Pattern 0, Color 0
+				db			0x01F, 0x000, 0x004, 0x000	; Sprite#6 (   0,  31 ), Pattern 4, Color 0
+				db			0x03F, 0x000, 0x004, 0x000	; Sprite#7 (   0,  63 ), Pattern 4, Color 0
+				db			0x04F, 0x000, 0x004, 0x000	; Sprite#8 (   0,  79 ), Pattern 4, Color 0
+				db			0x0D8, 0x000, 0x000, 0x000	; Sprite#9 (   0, 216 ), Pattern 0, Color 0 ※ Y = 216 で、これ以降のスプライトを表示禁止
+sprite_attrib_end::
+
+sprite_attrib_size	:= sprite_attrib_end - sprite_attrib
 
 ; -----------------------------------------------------------------------------
 ; ロゴデータ描画用 LMMCコマンド
