@@ -74,8 +74,8 @@ vdp_init_data::
 				db			0x00
 wait_vdp_command:
 				in			a, [vdp_port1]
-				and			a, 1
-				jr			nz, wait_vdp_command
+				rrca
+				jr			c, wait_vdp_command
 
 				endscope
 
@@ -135,7 +135,7 @@ init_palette::
 				call		set_write_vram_address
 				ld			hl, sprite_attrib
 				ld			bc, (sprite_attrib_size << 8) | vdp_port0
-				otir
+				;otir
 				endscope
 
 ; -----------------------------------------------------------------------------
@@ -143,7 +143,7 @@ init_palette::
 ; -----------------------------------------------------------------------------
 				scope		decompress_logo_image
 decompress_logo_image::
-				call		write_vdp_regs
+				call		otir_and_write_vdp_regs
 
 				db			0x80 | 25, 3		; MSK = 1, SP2 = 1
 				db			0x80 |  2, 0x3F		; set page 1
@@ -153,11 +153,11 @@ _run_lmmc_command:
 				db			0x80 | 17, 36		; R#17 = 36
 				db			0x00
 
-				ld			hl, logo_draw_command
+				;ld			hl, logo_draw_command
 				ld			bc, (logo_draw_command_size << 8) | vdp_port3
-				otir
+				;otir
 
-				call		write_vdp_regs
+				call		otir_and_write_vdp_regs
 
 				db			0x80 | 17, 0x80 | 44	; R#17 = 0x80 | 44 (非オートインクリメント)
 				db			0x00
@@ -167,21 +167,20 @@ _run_lmmc_command:
 				; A .... 着目位置の圧縮データの値
 				; C .... VDP port#3
 				; E .... 現在の色: 0=黒, 3=白
-				ld			hl, logo_data
-				ld			c, vdp_port3
+				;ld			hl, logo_data
+				;ld			c, vdp_port3
 				; _decompress_loop ループ開始時点で A = 0 (return value of write_vdp_regs)
 _decompress_loop:
 				ld			e, a
 				ld			a, [hl]
 				inc			hl
-				rlca
+				add			a, a
 				ld			d, a
 				jr			nc, _fixed_data					; [0][C1][C2][C3][N]タイプなら fixed_data へ。
 
 				; [1]の場合
-				; D .... 灰色が付く場合 1, 付かない場合 0
-				rlca
-				and			a, 1
+				; Cy' .... 灰色が付く場合 1, 付かない場合 0
+				add			a, a
 				ex			af, af'							; GRAY情報を保存
 				ld			a, d
 
@@ -208,8 +207,7 @@ _run_length_loop:
 				jr			_run_length_loop
 _gray_process:
 				ex			af, af'
-				or			a, a
-				jr			z, _next_color					; 灰色が付かない場合は何もせずに戻る
+				jr			nc, _next_color					; 灰色が付かない場合は何もせずに戻る
 				call		wait_tansfer_ready
 				ld			a, 2							; 灰色
 				out			[c], a
@@ -276,13 +274,50 @@ _wait_vsync2:
 				ld			bc, (21 << 8) | vdp_port3
 _main_loop:
 				push		bc
-				call		set_scroll
+
+
+; -----------------------------------------------------------------------------
+; 水平スクロールレジスタを更新する
+; -----------------------------------------------------------------------------
+set_scroll:
+				ld			b, 80
+				ld			hl, work_area + 2
+_line_loop:
+				ld			d, [hl]		; R#26の値
+				inc			hl
+				ld			e, [hl]		; R#27の値
+				inc			hl
+				inc			hl
+				inc			hl
+
+				ld			a, 26
+				out			[vdp_port1], a
+				ld			a, 0x80 | 17
+				out			[vdp_port1], a			; R#17 = 26
+
+				in			a, [vdp_port1]
+_wait_clash_sprite:
+				in			a, [vdp_port1]			; S#0
+				and			a, 0x20
+				jp			z, _wait_clash_sprite
+
+				out			[c], d					; R#26
+				out			[c], e					; R#27
+				djnz		_line_loop
+
+				ld			a, 26
+				out			[vdp_port1], a
+				ld			a, 0x80 | 17
+				out			[vdp_port1], a			; R#17 = 26
+
+				out			[c], b					; R#26 = 0
+				out			[c], b					; R#27 = 0
 
 _update_scroll_position:
 				ld			ix, work_area
 				ld			iy, animation_data
+				ld			d, b				; D = B = 0
 				ld			b, 40
-				ld			d, 0
 _update_scroll_loop:
 				; 値が減っていくライン
 				ld			l, [ix + 0]
@@ -369,58 +404,20 @@ calc_reg_value::
 				endscope
 
 ; -----------------------------------------------------------------------------
-; 水平スクロールレジスタを更新する
-; -----------------------------------------------------------------------------
-				scope		set_scroll
-set_scroll::
-				ld			b, 80
-				ld			hl, work_area + 2
-_line_loop:
-				ld			d, [hl]		; R#26の値
-				inc			hl
-				ld			e, [hl]		; R#27の値
-				inc			hl
-				inc			hl
-				inc			hl
-
-				ld			a, 26
-				out			[vdp_port1], a
-				ld			a, 0x80 | 17
-				out			[vdp_port1], a			; R#17 = 26
-
-				in			a, [vdp_port1]
-_wait_clash_sprite:
-				in			a, [vdp_port1]			; S#0
-				and			a, 0x20
-				jp			z, _wait_clash_sprite
-
-				out			[c], d					; R#26
-				out			[c], e					; R#27
-				djnz		_line_loop
-
-				ld			a, 26
-				out			[vdp_port1], a
-				ld			a, 0x80 | 17
-				out			[vdp_port1], a			; R#17 = 26
-				xor			a, a
-				out			[c], a					; R#26 = 0
-				out			[c], a					; R#27 = 0
-				ret
-				endscope
-
-; -----------------------------------------------------------------------------
 ; VDPのコントロールレジスタへ値を書き込む
 ;
 ; input:
-;	none
+;	呼び出し元の次のコード領域に書き込むデータ列を配置する
 ; break:
-;	AF,HL,E
+;	A,E,F
 ; comment:
-;	呼び出し元に書き込むデータ列を配置する
+;	割り込み禁止で呼ぶこと。
 ; -----------------------------------------------------------------------------
 				scope		write_vdp_regs
+otir_and_write_vdp_regs::
+				otir
 write_vdp_regs::
-				pop			hl
+				ex			[sp], hl
 				jr			start1
 loop1:
 				ld			e, a
@@ -434,7 +431,8 @@ start1:
 				inc			hl
 				or			a, a
 				jr			nz, loop1
-				jp			hl
+				ex			[sp], hl
+				ret
 				endscope
 
 ; -----------------------------------------------------------------------------
@@ -469,6 +467,7 @@ loop:
 				djnz		loop
 				ret
 				endscope
+
 
 ; -----------------------------------------------------------------------------
 ;	set write vram address
@@ -518,24 +517,6 @@ color_data2::
 				db			0x77, 0x07					; palette#3 : white
 
 ; -----------------------------------------------------------------------------
-; スプライトアトリビュートテーブル初期化データ
-; -----------------------------------------------------------------------------
-sprite_attrib::
-				db			0x01F, 0x0E8, 0x000, 0x000	; Sprite#0 ( 232,  31 ), Pattern 0, Color 0
-				db			0x01F, 0x0E8, 0x000, 0x000	; Sprite#1 ( 232,  31 ), Pattern 0, Color 0
-				db			0x03F, 0x0E8, 0x000, 0x000	; Sprite#2 ( 232,  63 ), Pattern 0, Color 0
-				db			0x03F, 0x0E8, 0x000, 0x000	; Sprite#3 ( 232,  63 ), Pattern 0, Color 0
-				db			0x04F, 0x0E8, 0x000, 0x000	; Sprite#4 ( 232,  79 ), Pattern 0, Color 0
-				db			0x04F, 0x0E8, 0x000, 0x000	; Sprite#5 ( 232,  79 ), Pattern 0, Color 0
-				db			0x01F, 0x000, 0x004, 0x000	; Sprite#6 (   0,  31 ), Pattern 4, Color 0
-				db			0x03F, 0x000, 0x004, 0x000	; Sprite#7 (   0,  63 ), Pattern 4, Color 0
-				db			0x04F, 0x000, 0x004, 0x000	; Sprite#8 (   0,  79 ), Pattern 4, Color 0
-				db			0x0D8, 0x000, 0x000, 0x000	; Sprite#9 (   0, 216 ), Pattern 0, Color 0 ※ Y = 216 で、これ以降のスプライトを表示禁止
-sprite_attrib_end::
-
-sprite_attrib_size	:= sprite_attrib_end - sprite_attrib
-
-; -----------------------------------------------------------------------------
 ; アニメーションデータ
 ; -----------------------------------------------------------------------------
 animation_data::
@@ -579,6 +560,24 @@ animation_data::
 				db			0x0C, 0x0D
 				db			0x16, 0x0C
 				db			0x11, 0x0E
+
+; -----------------------------------------------------------------------------
+; スプライトアトリビュートテーブル初期化データ
+; -----------------------------------------------------------------------------
+sprite_attrib::
+				db			0x01F, 0x0E8, 0x000, 0x000	; Sprite#0 ( 232,  31 ), Pattern 0, Color 0
+				db			0x01F, 0x0E8, 0x000, 0x000	; Sprite#1 ( 232,  31 ), Pattern 0, Color 0
+				db			0x03F, 0x0E8, 0x000, 0x000	; Sprite#2 ( 232,  63 ), Pattern 0, Color 0
+				db			0x03F, 0x0E8, 0x000, 0x000	; Sprite#3 ( 232,  63 ), Pattern 0, Color 0
+				db			0x04F, 0x0E8, 0x000, 0x000	; Sprite#4 ( 232,  79 ), Pattern 0, Color 0
+				db			0x04F, 0x0E8, 0x000, 0x000	; Sprite#5 ( 232,  79 ), Pattern 0, Color 0
+				db			0x01F, 0x000, 0x004, 0x000	; Sprite#6 (   0,  31 ), Pattern 4, Color 0
+				db			0x03F, 0x000, 0x004, 0x000	; Sprite#7 (   0,  63 ), Pattern 4, Color 0
+				db			0x04F, 0x000, 0x004, 0x000	; Sprite#8 (   0,  79 ), Pattern 4, Color 0
+				db			0x0D8, 0x000, 0x000, 0x000	; Sprite#9 (   0, 216 ), Pattern 0, Color 0 ※ Y = 216 で、これ以降のスプライトを表示禁止
+sprite_attrib_end::
+
+sprite_attrib_size	:= sprite_attrib_end - sprite_attrib
 
 ; -----------------------------------------------------------------------------
 ; ロゴデータ描画用 LMMCコマンド
