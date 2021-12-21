@@ -316,8 +316,8 @@ _wait_clash_sprite:
 _update_scroll_position:
 				ld			ix, work_area
 				ld			iy, animation_data
+				ld			d, b				; D = B = 0
 				ld			b, 40
-				ld			d, 0
 _update_scroll_loop:
 				; 値が減っていくライン
 				ld			l, [ix + 0]
