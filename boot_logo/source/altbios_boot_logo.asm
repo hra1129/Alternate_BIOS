@@ -168,7 +168,7 @@ _run_lmmc_command:
 				; C .... VDP port#3
 				; E .... 現在の色: 0=黒, 3=白
 				ld			hl, logo_data
-				ld			c, vdp_port3
+				;ld			c, vdp_port3
 				; _decompress_loop ループ開始時点で A = 0 (return value of write_vdp_regs)
 _decompress_loop:
 				ld			e, a
@@ -407,11 +407,11 @@ calc_reg_value::
 ; VDPのコントロールレジスタへ値を書き込む
 ;
 ; input:
-;	none
+;	呼び出し元の次のコード領域に書き込むデータ列を配置する
 ; break:
-;	AF,HL,E
+;	A,E,F,H,L
 ; comment:
-;	呼び出し元に書き込むデータ列を配置する
+;	割り込み禁止で呼ぶこと。
 ; -----------------------------------------------------------------------------
 				scope		write_vdp_regs
 write_vdp_regs::
