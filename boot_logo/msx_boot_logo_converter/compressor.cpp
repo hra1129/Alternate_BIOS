@@ -41,19 +41,23 @@ void ccompressor::decompress( cbitmap &decode ){
 	current_color = 0;
 	while( decode_index < pixel_count ){
 		d = compressed[ compressed_index++ ];
-		if( ( d & 0x80 ) == 0 ){
+		if( ( d & 0x01 ) != 0 ){
+			//	3‰æ‘fˆÈ‰º‚Ìê‡‚ÍA[N][C3][C2][C1][1] ‚ðŽg‚¤
+			d >>= 1;
 			for( i = 0; i < 3; i++ ){
-				c = ( d >> (5 - i*2) ) & 3;
+				c = d & 3;
+				d >>= 2;
 				set_palette( decode, decode_index, c );
 				if( decode_index >= pixel_count ){
 					break;
 				}
 			}
-			current_color = ( d & 1 ) * 3;
+			current_color = (d & 1) * 3;
 		}
 		else{
-			gray = d & 0x40;
-			d = d & 63;
+			//	4‰æ‘fˆÈã‚Ìê‡‚ÍA[XXXXXX][?][0]
+			gray = d & 0x02;
+			d = (d >> 2) & 63;
 			has_next = (d == 0);
 			if( d == 0 ){
 				d = 63;
