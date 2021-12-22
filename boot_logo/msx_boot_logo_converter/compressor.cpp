@@ -136,23 +136,23 @@ void ccompressor::run( void ){
 				index = index;
 			}
 			if( i <= 3 ) {
-				//	3画素以下の場合は、[0][C1][C2][C3][N] を使う
-				c = (( this->get( index + 0 ) << 5 ) | ( this->get( index + 1 ) << 3 ) | ( this->get( index + 2 ) << 1 ));
+				//	3画素以下の場合は、[N][C3][C2][C1][1] を使う
+				c = (( this->get( index + 0 ) << 1 ) | ( this->get( index + 1 ) << 3 ) | ( this->get( index + 2 ) << 5 ));
 				current_color = this->get( index + 3 );
-				c = c | ( (unsigned char)current_color >> 1 );
+				c |= (unsigned char)((( current_color << 6 ) & 0x80 ) | 1 );
 				index += 3;
 				this->compressed.push_back( c );
 			}
 			else{
-				//	4画素以上の場合は、[1][?][XXXXXX]
-				c = 0x80;
+				//	4画素以上の場合は、[XXXXXX][?][0]
+				c = 0x00;
 				if( this->get( index + i ) == 2 ){
-					c = c | 0x40;
+					c = c | 0x02;
 					index++;
 				}
 				index += i;
 				if( i < 64 ){
-					c = c + (unsigned char)i;
+					c |= (unsigned char)( i << 2 );
 					this->compressed.push_back( c );
 				}
 				else{
@@ -173,10 +173,10 @@ void ccompressor::run( void ){
 			current_color = 3 - current_color;
 		}
 		else{
-			//	グレーの場合は、[0][C1][C2][C3][N] を使う
-			c = ( ( this->get( index + 0 ) << 5 ) | ( this->get( index + 1 ) << 3 ) | ( this->get( index + 2 ) << 1 ) );
+			//	グレーの場合は、[N][C3][C2][C1][1] を使う
+			c = ( ( this->get( index + 0 ) << 1 ) | ( this->get( index + 1 ) << 3 ) | ( this->get( index + 2 ) << 5 ) );
 			current_color = this->get( index + 3 );
-			c = c | ((unsigned char)current_color >> 1);
+			c |= (unsigned char)((( current_color << 6 ) & 0x80 ) | 1 );
 			index += 3;
 			this->compressed.push_back( c );
 		}

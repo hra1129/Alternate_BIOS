@@ -179,19 +179,18 @@ _decompress_loop:
 				ld			e, a
 				ld			a, [hl]
 				inc			hl
-				add			a, a
-				ld			d, a
-				jr			nc, _fixed_data					; [0][C1][C2][C3][N]タイプなら fixed_data へ。
+				;or			a, a
+				rra
+				jr			c, _fixed_data					; [N][C3][C2][C1][1]タイプなら fixed_data へ。
 
-				; [1]の場合
+				; [L5]...[L0][G][0]の場合
 				; Cy' .... 灰色が付く場合 1, 付かない場合 0
-				add			a, a
+				rra
+				ld			d, a
 				ex			af, af'							; GRAY情報を保存
 				ld			a, d
+				or			a, a
 
-				rrca
-				and			a, 0b0011_1111					;  0, 1, 2, ... , 63
-				ld			d, a
 				jr			nz, _skip_non_zero
 				ld			a, 63
 _skip_non_zero:
@@ -221,22 +220,23 @@ _next_color:
 				xor			a, 3							; 次の色は反転
 				jr			_decompress_loop
 
-				; [0][C1][C2][C3][N]の場合
+				; [N][C3][C2][C1][1]の場合
 _fixed_data:
 				ld			b, 3
+				ld			d, a
 _fixed_data_loop:
-				xor			a, a
-				rl			d
-				rla
-				rl			d
-				rla
+				ld			a, d
+				and			a, 3
 				ld			e, a
+				srl			d
+				srl			d
+
 				call		wait_tansfer_ready
 				out			[c], e							; R#44 = C1
 				djnz		_fixed_data_loop
-				rlc			d								; Cy = D = [N] 0 または 1
 				ld			a, d
-				adc			a, d							; A = 0 または 3
+				add			a, d
+				add			a, d							; A = 0 または 3
 				jr			_decompress_loop
 
 				endscope
