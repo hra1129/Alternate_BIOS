@@ -116,24 +116,29 @@ init_palette::
 ; Initialize VRAM
 ; -----------------------------------------------------------------------------
 				scope		init_vram
+
+				push		hl
+
 				ld			hl, 0x7400			; sprite color table
 				ld			bc, 16 * 32			; 16[line/sprite] * 32[sprite]
 				ld			e, 0x05				; palette#1, palette#1
 				call		fill_vram
 
-				ld			h, 0x78				; sprite generator table
+				ld			h, 0x7800 >> 8		; sprite generator table
 				ld			bc, 0x30 + 256		; pattern#0 and pattern#1 (half)
 				ld			e, 0xFF
 				call		fill_vram
 
-				ld			l, 0x30				; sprite generator table
+				ld			l, 0x7830 & 0xFF	; sprite generator table
 				ld			bc, 0x10 + 256		; pattern#1 (half)
 				ld			e, 0xF0
 				call		fill_vram
 
 				ld			hl, 0x7600			; sprite attribute table
 				call		set_write_vram_address
-				ld			hl, sprite_attrib
+
+				pop			hl
+				;ld			hl, sprite_attrib
 				ld			bc, (sprite_attrib_size << 8) | vdp_port0
 				;otir
 				endscope
@@ -451,6 +456,7 @@ start1:
 ; -----------------------------------------------------------------------------
 				scope		fill_vram
 fill_vram::
+;				ld			e, a
 				call		set_write_vram_address
 
 ;				ld			a, c
